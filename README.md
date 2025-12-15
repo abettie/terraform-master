@@ -4,7 +4,15 @@
 
 AWS Organizationのマスターアカウント用のTerraformソースです。
 
-## 前準備
+## AWS OrganizationsとIAM Identity Centerについて
+
+AWS OrganizationsとIAM Identity Centerを使用して、複数のAWSアカウントとユーザーアクセスを一元管理します。詳しい解説は以下のドキュメントを参照してください。
+
+- [AWS OrganizationsとIAM Identity Centerの詳細解説](docs/aws-organizations-iam-identity-center.md)
+
+## ローカル準備
+
+Terraformを実行するために、ローカル環境に必要なツールをインストールします。
 
 ### AWS CLIのインストール
 
@@ -18,27 +26,103 @@ Terraformをインストールしてください。
 
 - [Terraform インストールガイド](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
-### Terraform用のロール作成と使用準備（AssumeRole回り）
+## AWS準備
 
-Terraformを実行するためのIAMロールを作成し、AssumeRoleを使用できるように設定してください。
+AWSコンソールで以下の設定を行います。
 
-1. マスターアカウントにTerraform実行用のIAMロールを作成
-2. 必要な権限ポリシーをアタッチ
-3. AWS CLIでAssumeRoleを使用できるように `~/.aws/config` を設定
+### AWS Organizationsの有効化
+
+1. AWSマネジメントコンソールにログイン
+2. AWS Organizationsサービスに移動
+3. 「組織の作成」をクリックして有効化
+
+### IAM Identity Centerの有効化
+
+1. AWSマネジメントコンソールで「IAM Identity Center」サービスに移動
+2. 「有効にする」をクリックしてIAM Identity Centerを有効化
+3. アイデンティティソースは「Identity Center ディレクトリ」を選択（デフォルト）
+
+### IAM Identity Centerのグループ作成
+
+1. IAM Identity Centerコンソールで「グループ」を選択
+2. 「グループを作成」をクリック
+3. グループ名を入力（例：`TerraformAdministrators`）
+4. 説明を入力して作成
+
+### IAM Identity Centerのユーザー作成
+
+1. IAM Identity Centerコンソールで「ユーザー」を選択
+2. 「ユーザーを追加」をクリック
+3. ユーザー情報を入力
+   - ユーザー名
+   - メールアドレス
+   - 名前・姓
+4. ユーザーを作成（初回ログイン用のメールが送信されます）
+5. 作成したユーザーを適切なグループに追加
+
+### アクセス許可セットの作成とグループへの割り当て
+
+1. IAM Identity Centerコンソールで「アクセス許可セット」を選択
+2. 「アクセス許可セットを作成」をクリック
+3. 事前定義されたアクセス許可セットから「AdministratorAccess」を選択
+4. 必要に応じて名前と説明をカスタマイズして作成
+5. 「AWSアカウント」タブに移動
+6. 対象のAWSアカウントを選択
+7. 「ユーザーまたはグループを割り当て」をクリック
+8. 先ほど作成したグループ（例：`TerraformAdministrators`）を選択
+9. アクセス許可セット（`AdministratorAccess`）を選択
+10. 「送信」をクリックして割り当てを完了
+
+## 疎通
+
+IAM Identity Centerを使用してAWSにアクセスできるように設定します。
+
+### SSOログインのための設定ファイル編集
+
+`~/.aws/config` ファイルを編集して、SSO設定を追加します。
 
 ```ini
 [profile terraform-master]
-role_arn = arn:aws:iam::ACCOUNT_ID:role/TerraformRole
-source_profile = default
+sso_session = my-sso
+sso_account_id = 123456789012
+sso_role_name = AdministratorAccess
 region = ap-northeast-1
+output = json
+
+[sso-session my-sso]
+sso_start_url = https://your-sso-portal.awsapps.com/start
+sso_region = ap-northeast-1
+sso_registration_scopes = sso:account:access
 ```
 
-### ロールを使った疎通確認
+設定値の説明：
+- `sso_start_url`: IAM Identity CenterのポータルURL（IAM Identity Centerコンソールの「設定」で確認可能）
+- `sso_region`: IAM Identity Centerが有効化されているリージョン
+- `sso_account_id`: 対象のAWSアカウントID
+- `sso_role_name`: 使用するアクセス許可セット名
+- `region`: デフォルトで使用するAWSリージョン
 
-設定したIAMロールで正しくAWSに接続できるか確認してください。
+### SSOログイン方法
+
+以下のコマンドでSSOログインを実行します。
 
 ```bash
-# プロファイルを指定してAWS CLIコマンドを実行
+aws sso login --profile terraform-master
+```
+
+ブラウザが自動的に開き、IAM Identity Centerのログイン画面が表示されます。ユーザー名とパスワードを入力してログインしてください。
+
+※WSL2でログインする場合は~/.bashrcに下記を追記してください。
+
+```bash
+export BROWSER='/mnt/c/Program Files/Google/Chrome/Application/chrome.exe'
+```
+
+### 疎通確認
+
+SSOログイン後、正しくAWSに接続できるか確認します。
+
+```bash
 aws sts get-caller-identity --profile terraform-master
 ```
 
@@ -46,10 +130,10 @@ aws sts get-caller-identity --profile terraform-master
 
 ```json
 {
-    "UserId": "AROAXXXXXXXXXXXXXXXXX:session-name",
+    "UserId": "AROAXXXXXXXXXXXXXXXXX:user@example.com",
     "Account": "123456789012",
-    "Arn": "arn:aws:sts::123456789012:assumed-role/TerraformRole/session-name"
+    "Arn": "arn:aws:sts::123456789012:assumed-role/AWSReservedSSO_AdministratorAccess_xxxxx/user@example.com"
 }
 ```
 
-`Arn` に `assumed-role` が含まれていれば、AssumeRoleが正常に機能しています。
+`Arn` に `AWSReservedSSO` が含まれていれば、IAM Identity Center経由で正常にアクセスできています。
