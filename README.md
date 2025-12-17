@@ -10,22 +10,6 @@ AWS OrganizationsとIAM Identity Centerを使用して、複数のAWSアカウ�
 
 - [AWS OrganizationsとIAM Identity Centerの詳細解説](docs/aws-organizations-iam-identity-center.md)
 
-## ローカル準備
-
-Terraformを実行するために、ローカル環境に必要なツールをインストールします。
-
-### AWS CLIのインストール
-
-AWS CLIをインストールしてください。
-
-- [AWS CLI インストールガイド](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-
-### Terraformのインストール
-
-Terraformをインストールしてください。
-
-- [Terraform インストールガイド](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
-
 ## AWS準備
 
 AWSコンソールで以下の設定を行います。
@@ -73,13 +57,27 @@ AWSコンソールで以下の設定を行います。
 9. アクセス許可セット（`AdministratorAccess`）を選択
 10. 「送信」をクリックして割り当てを完了
 
-## 疎通
+## ローカル準備
 
-IAM Identity Centerを使用してAWSにアクセスできるように設定します。
+Terraformを実行するために、ローカル環境に必要なツールをインストールし、AWS接続を設定します。
+
+### AWS CLIのインストール
+
+AWS CLIをインストールしてください。
+
+- [AWS CLI インストールガイド](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
+### Terraformのインストール
+
+Terraformをインストールしてください。
+
+- [Terraform インストールガイド](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
 
 ### SSOログインのための設定ファイル編集
 
 `~/.aws/config` ファイルを編集して、SSO設定を追加します。
+
+※プロファイル名 `terraform-master` は [provider.tf](provider.tf:3) で指定されているため、変更しないでください。
 
 ```ini
 [profile terraform-master]
