@@ -4,60 +4,14 @@
 
 AWS Organizationのマスターアカウント用のTerraformソースです。
 
-## AWS OrganizationsとIAM Identity Centerについて
+## 前提条件
 
-AWS OrganizationsとIAM Identity Centerを使用して、複数のAWSアカウントとユーザーアクセスを一元管理します。詳しい解説は以下のドキュメントを参照してください。
+このリポジトリを使用する前に、以下のドキュメントを参照して初期構築を完了してください。
 
-- [AWS OrganizationsとIAM Identity Centerの詳細解説](docs/aws-organizations-iam-identity-center.md)
+- [初期構築手順](docs/initial-setup.md) - AWS Organizations、IAM Identity Center、Terraformバックエンドの初期設定
+- [AWS OrganizationsとIAM Identity Centerの詳細解説](docs/aws-organizations-iam-identity-center.md) - 概念の詳細説明
 
-## AWS準備
-
-AWSコンソールで以下の設定を行います。
-
-### AWS Organizationsの有効化
-
-1. AWSマネジメントコンソールにログイン
-2. AWS Organizationsサービスに移動
-3. 「組織の作成」をクリックして有効化
-
-### IAM Identity Centerの有効化
-
-1. AWSマネジメントコンソールで「IAM Identity Center」サービスに移動
-2. 「有効にする」をクリックしてIAM Identity Centerを有効化
-3. アイデンティティソースは「Identity Center ディレクトリ」を選択（デフォルト）
-
-### IAM Identity Centerのグループ作成
-
-1. IAM Identity Centerコンソールで「グループ」を選択
-2. 「グループを作成」をクリック
-3. グループ名を入力（例：`TerraformAdministrators`）
-4. 説明を入力して作成
-
-### IAM Identity Centerのユーザー作成
-
-1. IAM Identity Centerコンソールで「ユーザー」を選択
-2. 「ユーザーを追加」をクリック
-3. ユーザー情報を入力
-   - ユーザー名
-   - メールアドレス
-   - 名前・姓
-4. ユーザーを作成（初回ログイン用のメールが送信されます）
-5. 作成したユーザーを適切なグループに追加
-
-### アクセス許可セットの作成とグループへの割り当て
-
-1. IAM Identity Centerコンソールで「アクセス許可セット」を選択
-2. 「アクセス許可セットを作成」をクリック
-3. 事前定義されたアクセス許可セットから「AdministratorAccess」を選択
-4. 必要に応じて名前と説明をカスタマイズして作成
-5. 「AWSアカウント」タブに移動
-6. 対象のAWSアカウントを選択
-7. 「ユーザーまたはグループを割り当て」をクリック
-8. 先ほど作成したグループ（例：`TerraformAdministrators`）を選択
-9. アクセス許可セット（`AdministratorAccess`）を選択
-10. 「送信」をクリックして割り当てを完了
-
-## ローカル準備
+## セットアップ
 
 Terraformを実行するために、ローカル環境に必要なツールをインストールし、AWS接続を設定します。
 
@@ -136,16 +90,7 @@ aws sts get-caller-identity --profile terraform-master
 
 `Arn` に `AWSReservedSSO` が含まれていれば、IAM Identity Center経由で正常にアクセスできています。
 
-## Terraform準備
-
-### 状態管理用S3バケット作成
-
-1. AWSコンソールでS3バケットを作成します
-   - バケット名: `terraform-state-{UUID}` など、グローバルでユニークな名前を指定
-   - リージョン: `ap-northeast-1` (東京)
-   - バージョニング: 有効化を推奨
-
-2. 作成したバケット名を `backend.tf` の `bucket` 項目に反映します
+## 使い方
 
 ### Terraform初期化
 
