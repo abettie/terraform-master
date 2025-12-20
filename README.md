@@ -4,11 +4,10 @@
 
 AWS Organizationのマスターアカウント用のTerraformソースです。
 
-## 前提条件
+## 参考情報
 
-このリポジトリを使用する前に、以下のドキュメントを参照して初期構築を完了してください。
+AWS OrganizationsとIAM Identity Centerの詳細については、以下のドキュメントを参照してください。
 
-- [初期構築手順](docs/initial-setup.md) - AWS Organizations、IAM Identity Center、Terraformバックエンドの初期設定
 - [AWS OrganizationsとIAM Identity Centerの詳細解説](docs/aws-organizations-iam-identity-center.md) - 概念の詳細説明
 
 ## セットアップ
