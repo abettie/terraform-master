@@ -30,8 +30,6 @@ Terraformをインストールしてください。
 
 `~/.aws/config` ファイルを編集して、SSO設定を追加します。
 
-※プロファイル名 `terraform-master` は [provider.tf](provider.tf:3) で指定されているため、変更しないでください。
-
 ```ini
 [profile terraform-master]
 sso_session = my-sso
@@ -93,8 +91,8 @@ aws sts get-caller-identity --profile terraform-master
 
 ### Terraform初期化
 
-作業ディレクトリでTerraformを初期化します。
+作業ディレクトリでTerraformを初期化します。環境変数 `AWS_PROFILE` でプロファイル名を指定してください。
 
 ```bash
-terraform init
+AWS_PROFILE=terraform-master; terraform init
 ```
