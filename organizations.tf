@@ -10,3 +10,19 @@ resource "aws_organizations_organization" "main" {
 
   feature_set = "ALL"
 }
+
+# Production Account
+resource "aws_organizations_account" "prod" {
+  name  = "prod"
+  email = var.prod_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}
+
+# Staging Account
+resource "aws_organizations_account" "stg" {
+  name  = "stg"
+  email = var.stg_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}
