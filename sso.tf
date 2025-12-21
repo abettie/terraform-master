@@ -49,13 +49,33 @@ resource "aws_ssoadmin_managed_policy_attachment" "administrator_access" {
   managed_policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
-# adminグループにAdministratorAccessを割り当て(Organization全体)
-resource "aws_ssoadmin_account_assignment" "admin_assignment" {
+# adminグループにAdministratorAccessを割り当て(マスターアカウント)
+resource "aws_ssoadmin_account_assignment" "admin_assignment_master" {
   instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
   permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
   principal_id       = aws_identitystore_group.admin.group_id
   principal_type     = "GROUP"
   target_id          = aws_organizations_organization.main.master_account_id
+  target_type        = "AWS_ACCOUNT"
+}
+
+# adminグループにAdministratorAccessを割り当て(prodアカウント)
+resource "aws_ssoadmin_account_assignment" "admin_assignment_prod" {
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
+  principal_id       = aws_identitystore_group.admin.group_id
+  principal_type     = "GROUP"
+  target_id          = aws_organizations_account.prod.id
+  target_type        = "AWS_ACCOUNT"
+}
+
+# adminグループにAdministratorAccessを割り当て(stgアカウント)
+resource "aws_ssoadmin_account_assignment" "admin_assignment_stg" {
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
+  principal_id       = aws_identitystore_group.admin.group_id
+  principal_type     = "GROUP"
+  target_id          = aws_organizations_account.stg.id
   target_type        = "AWS_ACCOUNT"
 }
 
