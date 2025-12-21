@@ -1,3 +1,9 @@
 # Pioneer user email address
 # Copy this file to terraform.tfvars and update the email address
 pioneer_email = "pioneer@example.com"
+
+# Production account email address
+prod_account_email = "prod@example.com"
+
+# Staging account email address
+stg_account_email = "stg@example.com"
