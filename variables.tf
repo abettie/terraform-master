@@ -4,14 +4,14 @@ variable "pioneer_email" {
   default     = "pioneer@example.com"
 }
 
-variable "prod_account_email" {
-  description = "Email address for the production account"
+variable "static_prod_account_email" {
+  description = "Email address for the static production account"
   type        = string
-  default     = "prod@example.com"
+  default     = "static-prod@example.com"
 }
 
-variable "stg_account_email" {
-  description = "Email address for the staging account"
+variable "static_stg_account_email" {
+  description = "Email address for the static staging account"
   type        = string
-  default     = "stg@example.com"
+  default     = "static-stg@example.com"
 }

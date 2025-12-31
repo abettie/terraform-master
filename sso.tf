@@ -59,23 +59,23 @@ resource "aws_ssoadmin_account_assignment" "admin_assignment_master" {
   target_type        = "AWS_ACCOUNT"
 }
 
-# adminグループにAdministratorAccessを割り当て(prodアカウント)
-resource "aws_ssoadmin_account_assignment" "admin_assignment_prod" {
+# adminグループにAdministratorAccessを割り当て(static-prodアカウント)
+resource "aws_ssoadmin_account_assignment" "admin_assignment_static_prod" {
   instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
   permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
   principal_id       = aws_identitystore_group.admin.group_id
   principal_type     = "GROUP"
-  target_id          = aws_organizations_account.prod.id
+  target_id          = aws_organizations_account.static_prod.id
   target_type        = "AWS_ACCOUNT"
 }
 
-# adminグループにAdministratorAccessを割り当て(stgアカウント)
-resource "aws_ssoadmin_account_assignment" "admin_assignment_stg" {
+# adminグループにAdministratorAccessを割り当て(static-stgアカウント)
+resource "aws_ssoadmin_account_assignment" "admin_assignment_static_stg" {
   instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
   permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
   principal_id       = aws_identitystore_group.admin.group_id
   principal_type     = "GROUP"
-  target_id          = aws_organizations_account.stg.id
+  target_id          = aws_organizations_account.static_stg.id
   target_type        = "AWS_ACCOUNT"
 }
 
