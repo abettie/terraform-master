@@ -2,8 +2,8 @@
 # Copy this file to terraform.tfvars and update the email address
 pioneer_email = "pioneer@example.com"
 
-# Production account email address
-prod_account_email = "prod@example.com"
+# Static Production account email address
+static_prod_account_email = "static-prod@example.com"
 
-# Staging account email address
-stg_account_email = "stg@example.com"
+# Static Staging account email address
+static_stg_account_email = "static-stg@example.com"
