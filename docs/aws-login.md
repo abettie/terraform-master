@@ -22,7 +22,7 @@
 以下のコマンドでプロファイルを設定します。
 
 ```bash
-aws configure --profile terraform-master
+aws configure --profile master
 ```
 
 プロンプトに従って、以下の情報を入力してください：
@@ -39,7 +39,7 @@ Default output format: json
 正しく設定できているか確認します。
 
 ```bash
-aws sts get-caller-identity --profile terraform-master
+aws sts get-caller-identity --profile master
 ```
 
 正常に接続できている場合、以下のようなレスポンスが返ります：
@@ -57,9 +57,9 @@ aws sts get-caller-identity --profile terraform-master
 rootアカウントでログインした状態で、Terraformを実行してAWS OrganizationsとIAM Identity Centerを構築します。
 
 ```bash
-AWS_PROFILE=terraform-master; terraform init
-AWS_PROFILE=terraform-master; terraform plan
-AWS_PROFILE=terraform-master; terraform apply
+export AWS_PROFILE=master && terraform init
+export AWS_PROFILE=master && terraform plan
+export AWS_PROFILE=master && terraform apply
 ```
 
 ### 3. rootアカウントのアクセスキー削除
@@ -72,14 +72,14 @@ AWS_PROFILE=terraform-master; terraform apply
 また、ローカルのAWS CLI設定からも削除します。
 
 ```bash
-# ~/.aws/credentials から [terraform-master-root] セクションを削除
-# ~/.aws/config から [profile terraform-master-root] セクションを削除
+# ~/.aws/credentials から [master] セクションを削除
+# ~/.aws/config から [profile master] セクションを削除
 ```
 
 または、以下のコマンドで削除できます：
 
 ```bash
-aws configure --profile terraform-master list
+aws configure --profile master list
 # 設定が存在することを確認後、手動で ~/.aws/credentials と ~/.aws/config を編集
 ```
 
@@ -96,7 +96,7 @@ rootアカウントのアクセスキーを削除したら、以下の「構築�
 `~/.aws/config` ファイルを編集して、SSO設定を追加します。
 
 ```ini
-[profile terraform-master]
+[profile master]
 sso_session = my-sso
 sso_account_id = 123456789012
 sso_role_name = AdministratorAccess
@@ -121,7 +121,7 @@ sso_registration_scopes = sso:account:access
 以下のコマンドでSSOログインを実行します。
 
 ```bash
-aws sso login --profile terraform-master
+aws sso login --profile master
 ```
 
 ブラウザが自動的に開き、IAM Identity Centerのログイン画面が表示されます。ユーザー名とパスワードを入力してログインしてください。
@@ -137,7 +137,7 @@ export BROWSER='/mnt/c/Program Files/Google/Chrome/Application/chrome.exe'
 SSOログイン後、正しくAWSに接続できるか確認します。
 
 ```bash
-aws sts get-caller-identity --profile terraform-master
+aws sts get-caller-identity --profile master
 ```
 
 正常に接続できている場合、以下のようなレスポンスが返ります：

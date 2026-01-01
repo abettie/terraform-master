@@ -22,12 +22,12 @@
    - コーディング規約に従って実装
 
 4. **Terraform構文チェック**
-   - `aws sso login --profile terraform-master` を実行
-   - ログインが成功したら`AWS_PROFILE=terraform-master; terraform plan` を実行
+   - `aws sso login --profile master` を実行
+   - ログインが成功したら`export AWS_PROFILE=master && terraform plan` を実行
    - エラーが発生した場合:
      - エラーメッセージを確認し、原因を特定
      - 該当するTerraformファイルを修正
-     - 再度 `AWS_PROFILE=terraform-master; terraform plan` を実行
+     - 再度 `export AWS_PROFILE=master && terraform plan` を実行
      - エラーがなくなるまで修正とplanを繰り返す
    - planが成功したら次のステップへ進む
 

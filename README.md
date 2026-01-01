@@ -1,4 +1,4 @@
-# terraform-master
+# master
 
 ## 概要
 
@@ -42,8 +42,8 @@ IAM Identity Center (旧AWS SSO) の有効化はTerraformでは実行できな�
 
 1. **organizations.tfの実行**
    ```bash
-   AWS_PROFILE=terraform-master; terraform init
-   AWS_PROFILE=terraform-master; terraform apply -target=aws_organizations_organization.main
+   export AWS_PROFILE=master && terraform init
+   export AWS_PROFILE=master && terraform apply -target=aws_organizations_organization.main
    ```
 
 2. **Identity Centerの手動有効化**
@@ -65,7 +65,7 @@ IAM Identity Center (旧AWS SSO) の有効化はTerraformでは実行できな�
 
 4. **残りのTerraform リソースの適用**
    ```bash
-   AWS_PROFILE=terraform-master; terraform apply
+   export AWS_PROFILE=master && terraform apply
    ```
 
 5. **ユーザーのメールアドレス検証**
@@ -90,5 +90,5 @@ IAM Identity Center (旧AWS SSO) の有効化はTerraformでは実行できな�
 作業ディレクトリでTerraformを初期化します。環境変数 `AWS_PROFILE` でプロファイル名を指定してください。
 
 ```bash
-AWS_PROFILE=terraform-master; terraform init
+export AWS_PROFILE=master && terraform init
 ```

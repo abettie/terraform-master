@@ -19,7 +19,7 @@
       "Bash(gh issue list:*)",
       "Bash(gh issue view:*)",
       "Bash(gh pr create:*)",
-      "Bash(AWS_PROFILE=terraform-master; terraform plan:*)"
+      "Bash(export AWS_PROFILE=master && terraform plan:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
