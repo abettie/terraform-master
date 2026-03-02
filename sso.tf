@@ -79,6 +79,26 @@ resource "aws_ssoadmin_account_assignment" "admin_assignment_static_stg" {
   target_type        = "AWS_ACCOUNT"
 }
 
+# adminグループにAdministratorAccessを割り当て(kidsword-prodアカウント)
+resource "aws_ssoadmin_account_assignment" "admin_assignment_kidsword_prod" {
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
+  principal_id       = aws_identitystore_group.admin.group_id
+  principal_type     = "GROUP"
+  target_id          = aws_organizations_account.kidsword_prod.id
+  target_type        = "AWS_ACCOUNT"
+}
+
+# adminグループにAdministratorAccessを割り当て(kidsword-stgアカウント)
+resource "aws_ssoadmin_account_assignment" "admin_assignment_kidsword_stg" {
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
+  principal_id       = aws_identitystore_group.admin.group_id
+  principal_type     = "GROUP"
+  target_id          = aws_organizations_account.kidsword_stg.id
+  target_type        = "AWS_ACCOUNT"
+}
+
 # Identity Centerインスタンスの情報を出力
 output "identity_center_instance_arn" {
   description = "IAM Identity Center instance ARN"

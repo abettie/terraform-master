@@ -7,3 +7,9 @@ static_prod_account_email = "static-prod@example.com"
 
 # Static Staging account email address
 static_stg_account_email = "static-stg@example.com"
+
+# Kidsword Production account email address
+kidsword_prod_account_email = "kidsword-prod@example.com"
+
+# Kidsword Staging account email address
+kidsword_stg_account_email = "kidsword-stg@example.com"
