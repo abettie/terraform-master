@@ -4,6 +4,11 @@
 
 ## 処理フロー
 
+0. **AWSへのssoログイン済みチェック**
+   - `aws sts get-caller-identity --profile master` を実行
+   - ERRORが発生したら、ユーザーにログインを促し、再度上記コマンドを実行
+   - UserIdが取得出来たら次へ進む
+
 1. **Issue情報の取得**
    - 引数でIssue番号が指定されている場合: その番号のIssueを取得
    - 引数がない場合: 最新のオープンIssueを取得
@@ -22,17 +27,13 @@
    - コーディング規約に従って実装
 
 4. **Terraform構文チェック**
-   - `aws sso login --profile master` を実行
-   - ログインが成功したら`export AWS_PROFILE=master && terraform plan` を実行
+   - `export AWS_PROFILE=master && terraform plan` を実行
    - エラーが発生した場合:
-     - エラーメッセージを確認し、原因を特定
-     - 該当するTerraformファイルを修正
-     - 再度 `export AWS_PROFILE=master && terraform plan` を実行
+     - エラー解消のためにファイルを修正
      - エラーがなくなるまで修正とplanを繰り返す
-   - planが成功したら次のステップへ進む
+   - エラーが無くなったら次へ進む
 
 5. **変更のコミット**
-   - この作業は前工程のterraform planが成功してから行う
    - 変更をステージング
    - コミットメッセージは日本語で簡潔に記述
    - コミットメッセージの例: "READMEファイルを追加"
