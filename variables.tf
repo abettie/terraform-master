@@ -15,3 +15,15 @@ variable "static_stg_account_email" {
   type        = string
   default     = "static-stg@example.com"
 }
+
+variable "kidsword_prod_account_email" {
+  description = "Email address for the kidsword production account"
+  type        = string
+  default     = "kidsword-prod@example.com"
+}
+
+variable "kidsword_stg_account_email" {
+  description = "Email address for the kidsword staging account"
+  type        = string
+  default     = "kidsword-stg@example.com"
+}

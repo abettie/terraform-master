@@ -26,3 +26,19 @@ resource "aws_organizations_account" "static_stg" {
 
   depends_on = [aws_organizations_organization.main]
 }
+
+# Kidsword Production Account
+resource "aws_organizations_account" "kidsword_prod" {
+  name  = "kidsword-prod"
+  email = var.kidsword_prod_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}
+
+# Kidsword Staging Account
+resource "aws_organizations_account" "kidsword_stg" {
+  name  = "kidsword-stg"
+  email = var.kidsword_stg_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}
