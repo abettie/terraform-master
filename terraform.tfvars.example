@@ -13,3 +13,9 @@ kidsword_prod_account_email = "kidsword-prod@example.com"
 
 # Kidsword Staging account email address
 kidsword_stg_account_email = "kidsword-stg@example.com"
+
+# Multibook Production account email address
+multibook_prod_account_email = "multibook-prod@example.com"
+
+# Multibook Staging account email address
+multibook_stg_account_email = "multibook-stg@example.com"
