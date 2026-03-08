@@ -42,3 +42,19 @@ resource "aws_organizations_account" "kidsword_stg" {
 
   depends_on = [aws_organizations_organization.main]
 }
+
+# Multibook Production Account
+resource "aws_organizations_account" "multibook_prod" {
+  name  = "multibook-prod"
+  email = var.multibook_prod_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}
+
+# Multibook Staging Account
+resource "aws_organizations_account" "multibook_stg" {
+  name  = "multibook-stg"
+  email = var.multibook_stg_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}
