@@ -58,3 +58,19 @@ resource "aws_organizations_account" "multibook_stg" {
 
   depends_on = [aws_organizations_organization.main]
 }
+
+# Sandbox-01 Account
+resource "aws_organizations_account" "sandbox_01" {
+  name  = "sandbox-01"
+  email = var.sandbox_01_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}
+
+# Sandbox-02 Account
+resource "aws_organizations_account" "sandbox_02" {
+  name  = "sandbox-02"
+  email = var.sandbox_02_account_email
+
+  depends_on = [aws_organizations_organization.main]
+}

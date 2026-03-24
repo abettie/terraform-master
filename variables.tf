@@ -39,3 +39,15 @@ variable "multibook_stg_account_email" {
   type        = string
   default     = "multibook-stg@example.com"
 }
+
+variable "sandbox_01_account_email" {
+  description = "Email address for the sandbox-01 account"
+  type        = string
+  default     = "sandbox-01@example.com"
+}
+
+variable "sandbox_02_account_email" {
+  description = "Email address for the sandbox-02 account"
+  type        = string
+  default     = "sandbox-02@example.com"
+}
