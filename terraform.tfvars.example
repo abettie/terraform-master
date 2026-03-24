@@ -19,3 +19,9 @@ multibook_prod_account_email = "multibook-prod@example.com"
 
 # Multibook Staging account email address
 multibook_stg_account_email = "multibook-stg@example.com"
+
+# Sandbox-01 account email address
+sandbox_01_account_email = "sandbox-01@example.com"
+
+# Sandbox-02 account email address
+sandbox_02_account_email = "sandbox-02@example.com"
