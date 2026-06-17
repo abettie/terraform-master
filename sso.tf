@@ -34,6 +34,20 @@ resource "aws_identitystore_group_membership" "pioneer_admin" {
   member_id         = aws_identitystore_user.pioneer.user_id
 }
 
+# readonlyグループの作成
+resource "aws_identitystore_group" "readonly" {
+  identity_store_id = tolist(data.aws_ssoadmin_instances.main.identity_store_ids)[0]
+  display_name      = "readonly"
+  description       = "Read-only group - Read-only permissions granted"
+}
+
+# pioneerユーザをreadonlyグループに追加
+resource "aws_identitystore_group_membership" "pioneer_readonly" {
+  identity_store_id = tolist(data.aws_ssoadmin_instances.main.identity_store_ids)[0]
+  group_id          = aws_identitystore_group.readonly.group_id
+  member_id         = aws_identitystore_user.pioneer.user_id
+}
+
 # AdministratorAccessの許可セット作成
 resource "aws_ssoadmin_permission_set" "administrator_access" {
   instance_arn     = tolist(data.aws_ssoadmin_instances.main.arns)[0]
@@ -47,6 +61,21 @@ resource "aws_ssoadmin_managed_policy_attachment" "administrator_access" {
   instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
   permission_set_arn = aws_ssoadmin_permission_set.administrator_access.arn
   managed_policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
+}
+
+# ReadOnlyAccessの許可セット作成
+resource "aws_ssoadmin_permission_set" "readonly_access" {
+  instance_arn     = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  name             = "ReadOnlyAccess"
+  description      = "Read-only access - Read-only access to all AWS services"
+  session_duration = "PT12H"
+}
+
+# ReadOnlyAccessポリシーをアタッチ
+resource "aws_ssoadmin_managed_policy_attachment" "readonly_access" {
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.readonly_access.arn
+  managed_policy_arn = "arn:aws:iam::aws:policy/ReadOnlyAccess"
 }
 
 # adminグループにAdministratorAccessを割り当て(マスターアカウント)
@@ -139,6 +168,26 @@ resource "aws_ssoadmin_account_assignment" "admin_assignment_sandbox_02" {
   target_type        = "AWS_ACCOUNT"
 }
 
+# readonlyグループにReadOnlyAccessを割り当て(kidsword-prodアカウント)
+resource "aws_ssoadmin_account_assignment" "readonly_assignment_kidsword_prod" {
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.readonly_access.arn
+  principal_id       = aws_identitystore_group.readonly.group_id
+  principal_type     = "GROUP"
+  target_id          = aws_organizations_account.kidsword_prod.id
+  target_type        = "AWS_ACCOUNT"
+}
+
+# readonlyグループにReadOnlyAccessを割り当て(kidsword-stgアカウント)
+resource "aws_ssoadmin_account_assignment" "readonly_assignment_kidsword_stg" {
+  instance_arn       = tolist(data.aws_ssoadmin_instances.main.arns)[0]
+  permission_set_arn = aws_ssoadmin_permission_set.readonly_access.arn
+  principal_id       = aws_identitystore_group.readonly.group_id
+  principal_type     = "GROUP"
+  target_id          = aws_organizations_account.kidsword_stg.id
+  target_type        = "AWS_ACCOUNT"
+}
+
 # Identity Centerインスタンスの情報を出力
 output "identity_center_instance_arn" {
   description = "IAM Identity Center instance ARN"
@@ -153,6 +202,11 @@ output "identity_center_identity_store_id" {
 output "admin_group_id" {
   description = "Admin group ID"
   value       = aws_identitystore_group.admin.group_id
+}
+
+output "readonly_group_id" {
+  description = "Readonly group ID"
+  value       = aws_identitystore_group.readonly.group_id
 }
 
 output "pioneer_user_id" {
