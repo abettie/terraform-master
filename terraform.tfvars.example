@@ -25,3 +25,9 @@ sandbox_01_account_email = "sandbox-01@example.com"
 
 # Sandbox-02 account email address
 sandbox_02_account_email = "sandbox-02@example.com"
+
+# master.makedara.work の Route53 ホストゾーンID（手動作成後に投入）
+master_makedara_zone_id = "ZXXXXXXXXXXXXX"
+
+# 問い合わせメール（contact@master.makedara.work）の転送先
+contact_forward_to = "abechinoid+master@gmail.com"

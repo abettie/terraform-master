@@ -87,6 +87,50 @@ IAM Identity Center (旧AWS SSO) の有効化はTerraformでは実行できな�
    - ユーザーはIAM Identity Centerのログインページでユーザー名とワンタイムパスワードを入力してログイン
    - ログイン後、新しいパスワードの設定画面が表示されるので、新しいパスワードを設定して完了
 
+### 重要: master.makedara.work のメール受信/送信設定について
+
+`master.makedara.work` ドメインの問い合わせメール（`contact@master.makedara.work`）を
+SES で受信し、`abechinoid+master@gmail.com` へ転送、Gmail の「他のアドレスから送信」で
+`contact@` として返信できるようにする構成です。Route53 ホストゾーンの作成・親ドメインへの
+NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理外のため、以下を手動で実施します。
+
+#### 実行手順
+
+1. **Route53 ホストゾーンを手動作成**
+   - マスターアカウントのコンソールで `master.makedara.work` の public hosted zone を作成
+   - 払い出された Zone ID を `terraform.tfvars` の `master_makedara_zone_id` に設定
+
+2. **親ドメインへ NS 委任**
+   - `makedara.work` を管理する DNS（レジストラ or 親ゾーン）に、手順1で払い出された
+     4 本の NS を持つ `master` サブドメインの NS レコードを追加して委任する
+
+3. **terraform apply（ユーザーが実行）**
+   ```bash
+   aws sso login --profile master
+   export AWS_PROFILE=master && terraform apply
+   ```
+   - SES identity・DKIM/MX/SPF/DMARC・受信用 S3・転送 Lambda・SMTP user が作成されます
+
+4. **DKIM 検証待ち**
+   - SES コンソールで identity が Verified になるまで待機（DNS 伝播後）
+
+5. **SES サンドボックス解除申請**
+   - 任意宛先（Gmail 転送・任意宛の返信）へ送るため、コンソール/サポートから
+     プロダクションアクセスを申請する
+
+6. **Gmail の「他のアドレスから送信」設定**
+   - 設定 → アカウント → 「他のメールアドレスを追加」→ `contact@master.makedara.work`
+   - SMTP サーバー: `email-smtp.ap-northeast-1.amazonaws.com`、ポート 587（TLS）
+   - ユーザー名/パスワード:
+     ```bash
+     terraform output -raw ses_smtp_username
+     terraform output -raw ses_smtp_password
+     ```
+
+7. **疎通確認**
+   - `contact@master.makedara.work` にテスト送信 → Gmail に転送されること
+   - Gmail から返信 → 元送信者に `contact@` 名義で届くことを確認
+
 ### Terraform初期化
 
 作業ディレクトリでTerraformを初期化します。環境変数 `AWS_PROFILE` でプロファイル名を指定してください。
