@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>お問い合わせ — Abenotech（アベノテック）</title>
+<meta name="description" content="アベノテックへのお問い合わせフォーム。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Cloudflare Turnstile（Bot 対策）。cf-turnstile 要素を自動描画する。 -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<style>
+  *{box-sizing:border-box;}
+  body{margin:0; background:#F6F7F9;}
+  a{color:#1D4ED8; text-decoration:none;}
+  a:hover{opacity:.72;}
+  input:focus, textarea:focus{outline:none; border-color:#1D4ED8; box-shadow:0 0 0 3px rgba(29,78,216,.12);}
+  ::placeholder{color:#9AA0AC;}
+  button:disabled{opacity:.6; cursor:default;}
+</style>
+</head>
+<body>
+
+<div style="font-family:'IBM Plex Sans JP',system-ui,sans-serif; background:#F6F7F9; color:#0B0E16; min-height:100vh; display:flex; flex-direction:column;">
+
+  <header style="background:rgba(246,247,249,.85); backdrop-filter:blur(10px); border-bottom:1px solid #E9EBEF;">
+    <div style="max-width:1120px; margin:0 auto; padding:16px clamp(20px,5vw,40px); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px 20px;">
+      <a href="index.html" style="display:flex; align-items:baseline; gap:10px; color:inherit;">
+        <span style="font-size:20px; font-weight:700; letter-spacing:-.01em; color:#0F1320;">Abenotech</span>
+        <span style="font-size:12px; color:#8A8F98;">アベノテック</span>
+      </a>
+      <a href="index.html" style="font-size:14px; color:#3B4252;">← ホームに戻る</a>
+    </div>
+  </header>
+
+  <main style="flex:1; max-width:640px; width:100%; margin:0 auto; padding:clamp(48px,8vw,72px) clamp(20px,5vw,40px) clamp(64px,10vw,96px);">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.18em; color:#1D4ED8; margin-bottom:14px;">CONTACT</div>
+    <h1 style="font-size:clamp(30px,6vw,38px); font-weight:700; letter-spacing:-.02em; color:#0B0E16; margin:0 0 44px;">お問い合わせ</h1>
+
+    <!-- 送信完了ビュー（初期は非表示。送信成功で表示に切替） -->
+    <div id="success" style="display:none; background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:clamp(28px,5vw,48px); text-align:center;">
+      <div style="width:56px; height:56px; border-radius:50%; background:#EAF0FF; color:#1D4ED8; display:flex; align-items:center; justify-content:center; margin:0 auto 22px; font-size:26px;">✓</div>
+      <h2 style="font-size:22px; font-weight:700; color:#0B0E16; margin:0 0 10px;">送信が完了しました</h2>
+      <p style="font-size:15px; line-height:1.8; color:#4B5262; margin:0 0 28px;">お問い合わせありがとうございます。内容を確認のうえ、ご入力いただいたメールアドレスへ折り返しご連絡いたします。</p>
+      <button type="button" id="resetBtn" style="background:#1D4ED8; color:#fff; border:none; padding:13px 26px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit;">続けて問い合わせる</button>
+    </div>
+
+    <!-- 入力フォーム -->
+    <form id="contactForm" novalidate style="background:#fff; border:1px solid #E5E7EB; border-radius:16px; padding:clamp(24px,5vw,40px);">
+      <label style="display:block; margin-bottom:28px;">
+        <span style="display:block; font-size:14px; font-weight:600; color:#0B0E16; margin-bottom:10px;">メールアドレス <span style="color:#1D4ED8;">*</span></span>
+        <input id="email" type="email" required placeholder="you@example.com" autocomplete="email" style="width:100%; padding:14px 16px; border:1px solid #D3D7DF; border-radius:10px; font-size:15px; font-family:inherit; color:#0B0E16; background:#FBFCFD; transition:border-color .15s, box-shadow .15s;">
+      </label>
+      <label style="display:block; margin-bottom:24px;">
+        <span style="display:block; font-size:14px; font-weight:600; color:#0B0E16; margin-bottom:10px;">お問い合わせ内容 <span style="color:#1D4ED8;">*</span></span>
+        <textarea id="message" required rows="7" placeholder="ご相談内容をご記入ください。" style="width:100%; padding:14px 16px; border:1px solid #D3D7DF; border-radius:10px; font-size:15px; font-family:inherit; line-height:1.8; color:#0B0E16; background:#FBFCFD; resize:vertical; transition:border-color .15s, box-shadow .15s;"></textarea>
+      </label>
+
+      <!-- Turnstile ウィジェット。data-sitekey はデプロイ時に実 site key へ置換する。 -->
+      <div style="margin-bottom:24px; min-height:65px;">
+        <div class="cf-turnstile" data-sitekey="__TURNSTILE_SITE_KEY__"></div>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <button type="submit" id="submitBtn" style="display:inline-flex; align-items:center; gap:8px; background:#1D4ED8; color:#fff; border:none; padding:15px 32px; border-radius:10px; font-size:15px; font-weight:600; cursor:pointer; font-family:inherit;">送信する →</button>
+        <span style="font-size:13px; color:#8A8F98;">送信をもって<a href="privacy.html">プライバシーポリシー</a>に同意したものとみなします。</span>
+      </div>
+      <p id="formError" style="display:none; margin-top:16px; font-size:13px; color:#C9483A; font-weight:500;">送信に失敗しました。時間をおいて、もう一度お試しください。</p>
+    </form>
+  </main>
+
+  <footer style="background:#fff; border-top:1px solid #E9EBEF;">
+    <div style="max-width:1120px; margin:0 auto; padding:32px clamp(20px,5vw,40px); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+      <span style="font-weight:700; color:#0B0E16;">Abenotech</span>
+      <div style="display:flex; gap:24px; align-items:center; font-size:13px; color:#6B7280;">
+        <a href="privacy.html" style="color:#6B7280;">プライバシーポリシー</a>
+        <span>© 2026 Abenotech</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // ▼▼ デプロイ時に実値へ差し替える設定（静的 HTML のためプレースホルダーを置換）▼▼
+  // API_BASE: 問い合わせ API のエンドポイント（terraform output contact_api_endpoint）
+  //   例: https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com
+  // Turnstile の Site Key は上の <div class="cf-turnstile" data-sitekey="..."> に埋め込む。
+  var API_BASE = '__API_BASE__';
+  // ▲▲ ここまで差し替え ▲▲
+
+  var form = document.getElementById('contactForm');
+  var success = document.getElementById('success');
+  var submitBtn = document.getElementById('submitBtn');
+  var resetBtn = document.getElementById('resetBtn');
+  var formError = document.getElementById('formError');
+  var emailEl = document.getElementById('email');
+  var messageEl = document.getElementById('message');
+
+  function emailOk(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+  function showError(msg){
+    formError.textContent = msg;
+    formError.style.display = 'block';
+  }
+  function clearError(){ formError.style.display = 'none'; }
+
+  // Turnstile のトークンを取得する。widget 未描画・未通過なら空文字。
+  function turnstileToken(){
+    return (window.turnstile && typeof window.turnstile.getResponse === 'function')
+      ? (window.turnstile.getResponse() || '')
+      : '';
+  }
+  function resetTurnstile(){
+    if(window.turnstile && typeof window.turnstile.reset === 'function'){
+      window.turnstile.reset();
+    }
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    clearError();
+
+    var email = emailEl.value.trim();
+    var message = messageEl.value.trim();
+
+    if(!emailOk(email)){
+      showError('正しいメールアドレスをご入力ください。');
+      emailEl.focus();
+      return;
+    }
+    if(message.length < 10){
+      showError('お問い合わせ内容をご入力ください（10文字以上）。');
+      messageEl.focus();
+      return;
+    }
+
+    var token = turnstileToken();
+    if(!token){
+      showError('「私は人間です」の確認を完了してから送信してください。');
+      return;
+    }
+
+    submitBtn.disabled = true;
+    fetch(API_BASE + '/contact', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email: email, message: message, turnstileToken: token })
+    })
+    .then(function(res){
+      if(!res.ok){ throw new Error('request failed: ' + res.status); }
+      form.style.display = 'none';
+      success.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    })
+    .catch(function(){
+      showError('送信に失敗しました。時間をおいて、もう一度お試しください。');
+      submitBtn.disabled = false;
+      resetTurnstile();
+    });
+  });
+
+  // 「続けて問い合わせる」でフォームへ戻す。
+  resetBtn.addEventListener('click', function(){
+    emailEl.value = '';
+    messageEl.value = '';
+    clearError();
+    submitBtn.disabled = false;
+    resetTurnstile();
+    success.style.display = 'none';
+    form.style.display = 'block';
+  });
+</script>
+
+</body>
+</html>
