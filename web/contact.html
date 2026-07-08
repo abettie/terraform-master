@@ -59,7 +59,7 @@
 
       <!-- Turnstile ウィジェット。data-sitekey はデプロイ時に実 site key へ置換する。 -->
       <div style="margin-bottom:24px; min-height:65px;">
-        <div class="cf-turnstile" data-sitekey="__TURNSTILE_SITE_KEY__"></div>
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAADx-qBntSmDPE8nt"></div>
       </div>
 
       <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
@@ -87,7 +87,7 @@
   // API_BASE: 問い合わせ API のエンドポイント（terraform output contact_api_endpoint）
   //   例: https://xxxxxxxxxx.execute-api.ap-northeast-1.amazonaws.com
   // Turnstile の Site Key は上の <div class="cf-turnstile" data-sitekey="..."> に埋め込む。
-  var API_BASE = '__API_BASE__';
+  var API_BASE = 'https://y09n8yzrmk.execute-api.ap-northeast-1.amazonaws.com';
   // ▲▲ ここまで差し替え ▲▲
 
   var form = document.getElementById('contactForm');
