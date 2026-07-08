@@ -118,7 +118,7 @@
 - **フォーカス**：入力欄フォーカスで青ボーダー＋青フォーカスリング。
 - **アニメーション**：ヒーロー右のドット、Works のドットが `pulseDot`（opacity .3↔1 / scale 1↔1.25、ease-in-out、2s・1.5s、infinite）。
 - **リンク hover**：`a:hover { opacity:.72; }`。
-- **レスポンシブ**：現状のモックはデスクトップ幅前提。ヒーロー／事業内容のグリッドと最大幅コンテナはモバイルで1カラムに折り返す実装を推奨（コンテナ幅・グリッド列をブレークポイントで切替）。
+- **レスポンシブ**：実装済み。メディアクエリを使わず `clamp()`（フォントサイズ・余白）と `grid-template-columns: repeat(auto-fit, minmax(...))`／`flex-wrap` で幅に応じて滑らかに追従。ヒーローは `minmax(300px,1fr)` の auto-fit で狭幅時に2→1カラム、事業内容カードは `minmax(240px,1fr)` で3→2→1に自動段組み。ヘッダーnav・CTAバンド・フッターは `flex-wrap` で折り返す。左右パディングは `clamp(20px,5vw,40px)`。本番実装ではコードベースの流儀に合わせてメディアクエリへ置換しても、この intrinsic な方式を踏襲してもよい。
 
 ## State Management
 - Contact ページのみ状態を持つ：`sent: boolean`（初期 false）。
