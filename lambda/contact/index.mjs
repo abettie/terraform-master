@@ -125,10 +125,6 @@ export const handler = async (event) => {
   const subject = process.env.CONTACT_MAIL_SUBJECT;
 
   const text = [
-    'Abenotech サイトのお問い合わせフォームから送信がありました。',
-    '',
-    `メールアドレス: ${email}`,
-    '',
     'お問い合わせ内容:',
     message,
   ].join('\n');
