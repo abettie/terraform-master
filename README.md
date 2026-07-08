@@ -131,6 +131,59 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
    - `contact@master.makedara.work` にテスト送信 → Gmail に転送されること
    - Gmail から返信 → 元送信者に `contact@` 名義で届くことを確認
 
+### 重要: Abenotech 事業紹介サイト（pages.master.makedara.work）について
+
+`https://pages.master.makedara.work/` で事業紹介サイト（静的 3 ページ）を配信し、問い合わせ
+フォームは Cloudflare Turnstile で Bot を弾いたうえで SES メール通知します。配信は
+CloudFront + S3（OAC）、問い合わせ API は API Gateway + Lambda 構成です。
+静的コンテンツ（`web/` 配下）は Terraform では管理せず、`scripts/deploy-pages.sh` で配置します。
+Turnstile ウィジェットの作成・シークレット投入・HTML への値埋め込みは手動で実施します。
+
+#### 実行手順
+
+1. **Cloudflare Turnstile ウィジェットを作成**
+   - Cloudflare ダッシュボード → Turnstile で `pages.master.makedara.work` 用ウィジェットを追加
+   - 払い出された **Site Key**（公開値）と **Secret Key**（機密値）を控える
+
+2. **terraform apply（ユーザーが実行）**
+   ```bash
+   aws sso login --profile master
+   export AWS_PROFILE=master && terraform apply
+   ```
+   - 配信用 S3・CloudFront・ACM 証明書（us-east-1・DNS 検証は Route53 で自動）・
+     問い合わせ API（API Gateway + Lambda）・Turnstile シークレット用 SSM パラメータが作成されます
+   - ACM は DNS 検証完了まで apply が待機します（数分）
+
+3. **Turnstile シークレットを SSM に投入**
+   ```bash
+   export AWS_PROFILE=master
+   aws ssm put-parameter \
+     --name /master/turnstile/secret-key \
+     --type SecureString --overwrite \
+     --value '<Cloudflare の Secret Key>'
+   ```
+
+4. **HTML にサイト固有値を埋め込む**
+   - `web/contact.html` の `__TURNSTILE_SITE_KEY__` を手順1の Site Key に置換
+   - `web/contact.html` の `__API_BASE__` を API エンドポイントに置換:
+     ```bash
+     terraform output -raw contact_api_endpoint
+     ```
+
+5. **静的コンテンツをデプロイ**
+   ```bash
+   export AWS_PROFILE=master && ./scripts/deploy-pages.sh
+   ```
+   - `web/` を配信バケットへ同期し、CloudFront キャッシュを無効化します
+
+6. **疎通確認**
+   - `https://pages.master.makedara.work/` が HTTPS で表示され、3 ページを相互遷移できること
+   - 問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work` に通知が届き、
+     既存の転送で運営 Gmail に届くこと。その返信が送信者に届くこと（Reply-To）
+
+> 補足: 問い合わせ通知の宛先は検証済みの `contact@master.makedara.work` のため、
+> SES サンドボックスのままでも通知メールは送信されます（既存の受信転送に相乗り）。
+
 ### Terraform初期化
 
 作業ディレクトリでTerraformを初期化します。環境変数 `AWS_PROFILE` でプロファイル名を指定してください。
