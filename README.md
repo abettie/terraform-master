@@ -131,9 +131,9 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
    - `contact@master.makedara.work` にテスト送信 → Gmail に転送されること
    - Gmail から返信 → 元送信者に `contact@` 名義で届くことを確認
 
-### 重要: Abenotech 事業紹介サイト（pages.master.makedara.work）について
+### 重要: Abenotech 事業紹介サイト（master.makedara.work）について
 
-`https://pages.master.makedara.work/` で事業紹介サイト（静的 3 ページ）を配信し、問い合わせ
+`https://master.makedara.work/` で事業紹介サイト（静的 3 ページ）を配信し、問い合わせ
 フォームは Cloudflare Turnstile で Bot を弾いたうえで SES メール通知します。配信は
 CloudFront + S3（OAC）、問い合わせ API は API Gateway + Lambda 構成です。
 静的コンテンツ（`web/` 配下）は Terraform では管理せず、`scripts/deploy-pages.sh` で配置します。
@@ -142,8 +142,10 @@ Turnstile ウィジェットの作成・シークレット投入・HTML への�
 #### 実行手順
 
 1. **Cloudflare Turnstile ウィジェットを作成**
-   - Cloudflare ダッシュボード → Turnstile で `pages.master.makedara.work` 用ウィジェットを追加
+   - Cloudflare ダッシュボード → Turnstile で `master.makedara.work` 用ウィジェットを追加
    - 払い出された **Site Key**（公開値）と **Secret Key**（機密値）を控える
+   - 既存ウィジェット（旧 `pages.master.makedara.work`）を流用する場合は、許可ホスト名に
+     `master.makedara.work` を追加する。Site Key を変えないなら手順3・4 の差し替えは不要
 
 2. **terraform apply（ユーザーが実行）**
    ```bash
@@ -177,7 +179,7 @@ Turnstile ウィジェットの作成・シークレット投入・HTML への�
    - `web/` を配信バケットへ同期し、CloudFront キャッシュを無効化します
 
 6. **疎通確認**
-   - `https://pages.master.makedara.work/` が HTTPS で表示され、3 ページを相互遷移できること
+   - `https://master.makedara.work/` が HTTPS で表示され、3 ページを相互遷移できること
    - 問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work` に通知が届き、
      既存の転送で運営 Gmail に届くこと。その返信が送信者に届くこと（Reply-To）
 

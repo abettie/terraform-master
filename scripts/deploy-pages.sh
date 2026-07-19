@@ -29,4 +29,4 @@ aws cloudfront create-invalidation \
   --query 'Invalidation.{Id:Id,Status:Status}' \
   --output table
 
-echo "==> Done. https://pages.master.makedara.work/"
+echo "==> Done. https://master.makedara.work/"
