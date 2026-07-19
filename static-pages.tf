@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------
 # Abenotech 事業紹介サイトの配信基盤: S3（非公開）+ CloudFront（OAC）+ ACM + Route53。
-# https://pages.master.makedara.work/ を HTTPS 配信する。
+# https://master.makedara.work/ を HTTPS 配信する。
 #
 # S3 バケットは非公開のまま CloudFront の OAC（Origin Access Control）経由でのみ読み取り
 # 可能にする。バケットの各種設定・ポリシー作法は ses-inbound.tf に合わせる。
@@ -171,7 +171,7 @@ resource "aws_s3_bucket_policy" "pages" {
   policy = data.aws_iam_policy_document.pages_bucket.json
 }
 
-# --- Route53 ALIAS（pages.master.makedara.work → CloudFront）----------------
+# --- Route53 ALIAS（master.makedara.work → CloudFront）----------------
 # CloudFront の固定ホストゾーン ID は Z2FDTNDATAQYW2（AWS 共通）。
 
 resource "aws_route53_record" "pages_a" {

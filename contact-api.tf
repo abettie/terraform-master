@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------
 # 問い合わせ API: API Gateway HTTP API + Lambda。
-# サイト（pages.master.makedara.work）の問い合わせフォームから POST /contact を受け、
+# サイト（master.makedara.work）の問い合わせフォームから POST /contact を受け、
 # Cloudflare Turnstile 検証後に SES で運営宛通知メールを送信する。
 #
 # Lambda は lambda/contact/index.mjs（依存追加なしの自己完結 ESM。lambda/ses-forward と同方針）。
@@ -24,7 +24,7 @@ resource "aws_cloudwatch_log_group" "contact" {
 
 resource "aws_ssm_parameter" "turnstile_secret" {
   name        = "/master/turnstile/secret-key"
-  description = "Cloudflare Turnstile secret key for pages.master.makedara.work. Set manually via AWS CLI."
+  description = "Cloudflare Turnstile secret key for master.makedara.work. Set manually via AWS CLI."
   type        = "SecureString"
   value       = "PLACEHOLDER_REPLACE_MANUALLY"
 
