@@ -3,13 +3,17 @@
 # DKIM CNAME・MX は ses.tf / ses-inbound.tf 側で管理する。
 # ---------------------------------------------------------------------------
 
-# SPF: SES を正規の送信元として宣言する（apex に TXT）。
+# apex の TXT レコード。Route53 は name+type ごとに 1 レコードセットへ集約されるため、
+# SPF（SES の送信元宣言）と Google サイト所有権確認を同一リソースの複数値として管理する。
 resource "aws_route53_record" "spf" {
   zone_id = data.aws_route53_zone.makedara.zone_id
   name    = local.makedara_domain
   type    = "TXT"
   ttl     = 300
-  records = ["v=spf1 include:amazonses.com ~all"]
+  records = [
+    "v=spf1 include:amazonses.com ~all",
+    "google-site-verification=Z1YFpllTelleZU3c4kvP0SpLKXO5u-PpdcZbNowE_qw",
+  ]
 }
 
 # DMARC: 監視モード（p=none）。集約レポートを転送先へ送る。
