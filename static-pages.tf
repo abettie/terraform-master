@@ -35,6 +35,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pages" {
   bucket = aws_s3_bucket.pages.id
 
   rule {
+    # AWS は 2026-03 以降 新規バケットの SSE-C アップロードを自動ブロックする。
+    # 実態に合わせて明示しないと毎回 plan に差分が出るため固定する。
+    blocked_encryption_types = ["SSE-C"]
+
     apply_server_side_encryption_by_default {
       sse_algorithm = "AES256"
     }
