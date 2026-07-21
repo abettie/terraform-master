@@ -47,25 +47,29 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pages" {
 resource "aws_acm_certificate" "pages" {
   provider = aws.us_east_1
 
-  domain_name       = local.pages_domain
-  validation_method = "DNS"
+  domain_name               = local.pages_domain
+  subject_alternative_names = [local.apex_domain]
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true
   }
 }
 
-# DNS 検証用レコードを Route53 に登録する（証明書は 1 ドメインのため実質 1 レコード）。
+# DNS 検証用レコードを Route53 に登録する。
+# 対象ドメインは master.makedara.work と makedara.work で所属ホストゾーンが異なるため、
+# local.pages_cert_zone_ids でドメインごとの登録先ゾーンを引く。
 resource "aws_route53_record" "pages_cert_validation" {
   for_each = {
     for dvo in aws_acm_certificate.pages.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      type   = dvo.resource_record_type
-      record = dvo.resource_record_value
+      name    = dvo.resource_record_name
+      type    = dvo.resource_record_type
+      record  = dvo.resource_record_value
+      zone_id = local.pages_cert_zone_ids[dvo.domain_name]
     }
   }
 
-  zone_id = data.aws_route53_zone.makedara.zone_id
+  zone_id = each.value.zone_id
   name    = each.value.name
   type    = each.value.type
   ttl     = 300
@@ -96,7 +100,7 @@ resource "aws_cloudfront_distribution" "pages" {
   is_ipv6_enabled     = true
   comment             = local.pages_domain
   default_root_object = "index.html"
-  aliases             = [local.pages_domain]
+  aliases             = local.pages_domains
   price_class         = "PriceClass_200" # 日本を含むエッジロケーション。
 
   origin {
@@ -171,8 +175,9 @@ resource "aws_s3_bucket_policy" "pages" {
   policy = data.aws_iam_policy_document.pages_bucket.json
 }
 
-# --- Route53 ALIAS（master.makedara.work → CloudFront）----------------
+# --- Route53 ALIAS（master.makedara.work / makedara.work → CloudFront）----------------
 # CloudFront の固定ホストゾーン ID は Z2FDTNDATAQYW2（AWS 共通）。
+# 2 ホスト名とも同一 distribution を指し、同じコンテンツを配信する。
 
 resource "aws_route53_record" "pages_a" {
   zone_id = data.aws_route53_zone.makedara.zone_id
@@ -189,6 +194,30 @@ resource "aws_route53_record" "pages_a" {
 resource "aws_route53_record" "pages_aaaa" {
   zone_id = data.aws_route53_zone.makedara.zone_id
   name    = local.pages_domain
+  type    = "AAAA"
+
+  alias {
+    name                   = aws_cloudfront_distribution.pages.domain_name
+    zone_id                = "Z2FDTNDATAQYW2"
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "pages_apex_a" {
+  zone_id = data.aws_route53_zone.makedara_apex.zone_id
+  name    = local.apex_domain
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.pages.domain_name
+    zone_id                = "Z2FDTNDATAQYW2"
+    evaluate_target_health = false
+  }
+}
+
+resource "aws_route53_record" "pages_apex_aaaa" {
+  zone_id = data.aws_route53_zone.makedara_apex.zone_id
+  name    = local.apex_domain
   type    = "AAAA"
 
   alias {

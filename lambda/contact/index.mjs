@@ -19,8 +19,11 @@ const SITEVERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverif
 const ses = new SESv2Client({ region: process.env.AWS_REGION });
 const ssm = new SSMClient({ region: process.env.AWS_REGION });
 
-// 許可オリジン（CORS レスポンスヘッダ用）。
-const ALLOW_ORIGIN = process.env.ALLOW_ORIGIN;
+// 許可オリジン（CORS レスポンスヘッダ用）。サイトは複数ホスト名で配信するためリストで受け取る。
+const ALLOW_ORIGINS = (process.env.ALLOW_ORIGINS ?? '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 // Turnstile シークレットはモジュールスコープでキャッシュ（コールドスタート後 1 回だけ取得）。
 let secretPromise = null;
@@ -73,20 +76,37 @@ async function verifyTurnstileToken(token, remoteIp) {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function corsHeaders() {
+function corsHeaders(allowOrigin) {
   return {
     'content-type': 'application/json',
-    'access-control-allow-origin': ALLOW_ORIGIN,
+    'access-control-allow-origin': allowOrigin,
     'access-control-allow-methods': 'POST,OPTIONS',
     'access-control-allow-headers': 'content-type',
+    // オリジンによって応答ヘッダが変わることを中間キャッシュに伝える。
+    vary: 'Origin',
   };
 }
 
-function response(statusCode, body) {
-  return { statusCode, headers: corsHeaders(), body: JSON.stringify(body) };
+// リクエストの Origin が許可リストにあればエコーバックする。
+// 未知・欠落の場合は先頭の許可オリジンを返し、ブラウザ側で弾かせる。
+// HTTP API（payload format 2.0）はヘッダ名を小文字へ正規化するため origin 固定で参照してよい。
+function resolveAllowOrigin(event) {
+  const origin = event?.headers?.origin;
+  return ALLOW_ORIGINS.includes(origin) ? origin : ALLOW_ORIGINS[0];
+}
+
+// 許可オリジンを束ねたレスポンス生成関数を返す。
+function responder(allowOrigin) {
+  return (statusCode, body) => ({
+    statusCode,
+    headers: corsHeaders(allowOrigin),
+    body: JSON.stringify(body),
+  });
 }
 
 export const handler = async (event) => {
+  const response = responder(resolveAllowOrigin(event));
+
   // CORS プリフライト（HTTP API の CORS 設定が主だが保険として応答）。
   const method = event?.requestContext?.http?.method;
   if (method === 'OPTIONS') {

@@ -97,12 +97,15 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
 #### 実行手順
 
 1. **Route53 ホストゾーンを手動作成**
-   - マスターアカウントのコンソールで `master.makedara.work` の public hosted zone を作成
-   - 払い出された Zone ID を `terraform.tfvars` の `master_makedara_zone_id` に設定
+   - マスターアカウントのコンソールで `makedara.work`（apex）と `master.makedara.work` の
+     public hosted zone をそれぞれ作成
+   - 払い出された Zone ID を `terraform.tfvars` の `makedara_zone_id` /
+     `master_makedara_zone_id` に設定
 
-2. **親ドメインへ NS 委任**
-   - `makedara.work` を管理する DNS（レジストラ or 親ゾーン）に、手順1で払い出された
-     4 本の NS を持つ `master` サブドメインの NS レコードを追加して委任する
+2. **レジストラから apex へ NS 委任**
+   - お名前ドットコムのネームサーバー設定を、`makedara.work` ゾーンの NS 4 本に変更する
+   - `master.makedara.work` への委任は Terraform が `makedara.work` ゾーン内に NS レコード
+     （`aws_route53_record.master_delegation`）として作成するため、レジストラ側の設定は不要
 
 3. **terraform apply（ユーザーが実行）**
    ```bash
@@ -131,9 +134,10 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
    - `contact@master.makedara.work` にテスト送信 → Gmail に転送されること
    - Gmail から返信 → 元送信者に `contact@` 名義で届くことを確認
 
-### 重要: Abenotech 事業紹介サイト（master.makedara.work）について
+### 重要: Abenotech 事業紹介サイト（makedara.work / master.makedara.work）について
 
-`https://master.makedara.work/` で事業紹介サイト（静的 3 ページ）を配信し、問い合わせ
+`https://makedara.work/` と `https://master.makedara.work/` の両方（同一 CloudFront
+distribution・同一コンテンツ）で事業紹介サイト（静的 3 ページ）を配信し、問い合わせ
 フォームは Cloudflare Turnstile で Bot を弾いたうえで SES メール通知します。配信は
 CloudFront + S3（OAC）、問い合わせ API は API Gateway + Lambda 構成です。
 静的コンテンツ（`web/` 配下）は Terraform では管理せず、`scripts/deploy-pages.sh` で配置します。
@@ -146,6 +150,8 @@ Turnstile ウィジェットの作成・シークレット投入・HTML への�
    - 払い出された **Site Key**（公開値）と **Secret Key**（機密値）を控える
    - 既存ウィジェット（旧 `pages.master.makedara.work`）を流用する場合は、許可ホスト名に
      `master.makedara.work` を追加する。Site Key を変えないなら手順3・4 の差し替えは不要
+   - サイトは 2 ホスト名で配信するため、許可ホスト名に **`makedara.work` も必ず追加**する
+     （未追加だと apex 経由のフォーム送信で Turnstile が失敗する）
 
 2. **terraform apply（ユーザーが実行）**
    ```bash
@@ -179,9 +185,10 @@ Turnstile ウィジェットの作成・シークレット投入・HTML への�
    - `web/` を配信バケットへ同期し、CloudFront キャッシュを無効化します
 
 6. **疎通確認**
-   - `https://master.makedara.work/` が HTTPS で表示され、3 ページを相互遷移できること
-   - 問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work` に通知が届き、
-     既存の転送で運営 Gmail に届くこと。その返信が送信者に届くこと（Reply-To）
+   - `https://master.makedara.work/` と `https://makedara.work/` の両方が HTTPS で表示され、
+     3 ページを相互遷移できること
+   - 両ホスト名の問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work`
+     に通知が届き、既存の転送で運営 Gmail に届くこと。その返信が送信者に届くこと（Reply-To）
 
 > 補足: 問い合わせ通知の宛先は検証済みの `contact@master.makedara.work` のため、
 > SES サンドボックスのままでも通知メールは送信されます（既存の受信転送に相乗り）。

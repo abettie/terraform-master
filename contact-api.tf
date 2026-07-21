@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------------------
 # 問い合わせ API: API Gateway HTTP API + Lambda。
-# サイト（master.makedara.work）の問い合わせフォームから POST /contact を受け、
+# サイト（master.makedara.work / makedara.work）の問い合わせフォームから POST /contact を受け、
 # Cloudflare Turnstile 検証後に SES で運営宛通知メールを送信する。
 #
 # Lambda は lambda/contact/index.mjs（依存追加なしの自己完結 ESM。lambda/ses-forward と同方針）。
@@ -111,7 +111,8 @@ resource "aws_lambda_function" "contact" {
       CONTACT_MAIL_TO           = local.contact_mail_to
       CONTACT_MAIL_SUBJECT      = local.contact_mail_subject
       TURNSTILE_SECRET_SSM_NAME = aws_ssm_parameter.turnstile_secret.name
-      ALLOW_ORIGIN              = "https://${local.pages_domain}"
+      # サイトは 2 ホスト名で配信するため、許可オリジンはカンマ区切りのリストで渡す。
+      ALLOW_ORIGINS = join(",", [for d in local.pages_domains : "https://${d}"])
     }
   }
 
@@ -127,7 +128,7 @@ resource "aws_apigatewayv2_api" "contact" {
 
   # 問い合わせフォーム（サイト本体オリジン）からのブラウザアクセスのみ許可する。
   cors_configuration {
-    allow_origins = ["https://${local.pages_domain}"]
+    allow_origins = [for d in local.pages_domains : "https://${d}"]
     allow_methods = ["POST", "OPTIONS"]
     allow_headers = ["content-type"]
     max_age       = 3600
