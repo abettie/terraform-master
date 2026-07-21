@@ -106,6 +106,10 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
    - お名前ドットコムのネームサーバー設定を、`makedara.work` ゾーンの NS 4 本に変更する
    - `master.makedara.work` への委任は Terraform が `makedara.work` ゾーン内に NS レコード
      （`aws_route53_record.master_delegation`）として作成するため、レジストラ側の設定は不要
+   - `kidsword` / `kidsword-stg` / `multibook-stg` / `static` / `static-stg` の各サブドメインも
+     同ゾーンから委任する（`aws_route53_record.subdomain_delegation`）。委任先ホストゾーンは
+     各メンバーアカウント側にあり data 参照できないため、NS 値は `locals.tf` の
+     `subdomain_delegations` に直接記述している。委任先ゾーンを作り直した場合はこの値の更新が必要
 
 3. **terraform apply（ユーザーが実行）**
    ```bash

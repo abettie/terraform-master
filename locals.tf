@@ -29,4 +29,42 @@ locals {
 
   # 問い合わせ通知メールの件名。
   contact_mail_subject = "【Abenotech】お問い合わせ"
+
+  # apex ゾーンから NS 委譲するサブドメイン群（キーはラベルのみ）。
+  # 委譲先ホストゾーンは各メンバーアカウント（organizations.tf 参照）側にあり、
+  # master アカウントの credential では data.aws_route53_zone で参照できないため NS 値を直接記述する。
+  # 委譲先ゾーンを作り直すと NS が変わり委譲が切れるので、その際はここの値も追従させること。
+  # master.makedara.work は aws_route53_record.master_delegation で別管理。
+  subdomain_delegations = {
+    "kidsword" = [
+      "ns-74.awsdns-09.com.",
+      "ns-973.awsdns-57.net.",
+      "ns-1087.awsdns-07.org.",
+      "ns-1579.awsdns-05.co.uk.",
+    ]
+    "kidsword-stg" = [
+      "ns-374.awsdns-46.com.",
+      "ns-582.awsdns-08.net.",
+      "ns-1235.awsdns-26.org.",
+      "ns-1636.awsdns-12.co.uk.",
+    ]
+    "multibook-stg" = [
+      "ns-400.awsdns-50.com.",
+      "ns-762.awsdns-31.net.",
+      "ns-1517.awsdns-61.org.",
+      "ns-1616.awsdns-10.co.uk.",
+    ]
+    "static" = [
+      "ns-209.awsdns-26.com.",
+      "ns-995.awsdns-60.net.",
+      "ns-1243.awsdns-27.org.",
+      "ns-1894.awsdns-44.co.uk.",
+    ]
+    "static-stg" = [
+      "ns-95.awsdns-11.com.",
+      "ns-647.awsdns-16.net.",
+      "ns-1113.awsdns-11.org.",
+      "ns-1810.awsdns-34.co.uk.",
+    ]
+  }
 }

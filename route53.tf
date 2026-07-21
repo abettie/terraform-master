@@ -35,3 +35,16 @@ resource "aws_route53_record" "master_delegation" {
   ttl     = 172800
   records = data.aws_route53_zone.makedara.name_servers
 }
+
+# 各メンバーアカウントが持つサブドメインのホストゾーンへ apex ゾーンから NS 委譲する。
+# master_delegation と同様、従来はお名前ドットコム側の DNS で委譲していたものの移設。
+# このレコードが無いと該当サブドメインが一切引けなくなる。
+resource "aws_route53_record" "subdomain_delegation" {
+  for_each = local.subdomain_delegations
+
+  zone_id = data.aws_route53_zone.makedara_apex.zone_id
+  name    = "${each.key}.${local.apex_domain}"
+  type    = "NS"
+  ttl     = 172800
+  records = each.value
+}
