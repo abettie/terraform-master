@@ -36,6 +36,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "ses_inbound" {
   bucket = aws_s3_bucket.ses_inbound.id
 
   rule {
+    # AWS は 2026-03 以降 新規バケットの SSE-C アップロードを自動ブロックする。
+    # 実態に合わせて明示しないと毎回 plan に差分が出るため固定する。
+    blocked_encryption_types = ["SSE-C"]
+
     apply_server_side_encryption_by_default {
       # SSE-S3（AES256）。SSE-KMS にすると SES 側に KMS 権限が別途必要になるため使わない。
       sse_algorithm = "AES256"
