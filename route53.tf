@@ -16,6 +16,18 @@ resource "aws_route53_record" "spf" {
   ]
 }
 
+# makedara.work（apex）の TXT レコード。現状は Google サイト所有権確認のみ。
+# apex ゾーンは master.makedara.work ゾーンとは別管理のため、spf とは別リソースにする。
+resource "aws_route53_record" "apex_txt" {
+  zone_id = data.aws_route53_zone.makedara_apex.zone_id
+  name    = local.apex_domain
+  type    = "TXT"
+  ttl     = 300
+  records = [
+    "google-site-verification=Lcj0KSxeP8X3bgjCipvFt-jIxg6hgl78DWMSrulLtwc",
+  ]
+}
+
 # DMARC: 監視モード（p=none）。集約レポートを転送先へ送る。
 resource "aws_route53_record" "dmarc" {
   zone_id = data.aws_route53_zone.makedara.zone_id
