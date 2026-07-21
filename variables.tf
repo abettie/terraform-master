@@ -58,6 +58,12 @@ variable "master_makedara_zone_id" {
   default     = ""
 }
 
+variable "makedara_zone_id" {
+  description = "makedara.work（apex）の Route53 ホストゾーンID（手動作成後に投入）"
+  type        = string
+  default     = ""
+}
+
 variable "contact_forward_to" {
   description = "問い合わせメールの転送先"
   type        = string

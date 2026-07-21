@@ -24,3 +24,14 @@ resource "aws_route53_record" "dmarc" {
   ttl     = 300
   records = ["v=DMARC1; p=none; rua=mailto:${var.contact_forward_to}"]
 }
+
+# master.makedara.work は apex とは別ホストゾーンで管理しているため、apex ゾーンから NS 委譲する。
+# 従来はお名前ドットコム側の DNS で委譲していたが、apex を Route53 へ移したのに伴いこちらへ移設した。
+# このレコードが無いと master.makedara.work が一切引けなくなる（サイト・メールともに停止）。
+resource "aws_route53_record" "master_delegation" {
+  zone_id = data.aws_route53_zone.makedara_apex.zone_id
+  name    = local.makedara_domain
+  type    = "NS"
+  ttl     = 172800
+  records = data.aws_route53_zone.makedara.name_servers
+}
