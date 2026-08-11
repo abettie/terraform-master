@@ -1,0 +1,37 @@
+// 正規ホスト名（apex）以外へのアクセスを https://${apex_domain} へ 301 リダイレクトする。
+// master.makedara.work と CloudFront デフォルトドメイン（dxxxx.cloudfront.net）が対象。
+// キャッシュキーに Host を含めていないため、キャッシュ参照前に走る viewer-request で判定する。
+function handler(event) {
+    var request = event.request;
+    var host = request.headers.host ? request.headers.host.value : '';
+
+    if (host === '${apex_domain}') {
+        return request;
+    }
+
+    // querystring はオブジェクトで渡るため、リダイレクト先 URL 用に組み直す。
+    // 同名キーが複数ある場合 value は multiValue の 1 件目と重複するので、
+    // multiValue があるときはそちらだけを使う。
+    var params = [];
+    for (var name in request.querystring) {
+        var q = request.querystring[name];
+        var values = q.multiValue || [q];
+        for (var i = 0; i < values.length; i++) {
+            params.push(encodeURIComponent(name) + '=' + encodeURIComponent(values[i].value));
+        }
+    }
+
+    var location = 'https://${apex_domain}' + request.uri +
+        (params.length > 0 ? '?' + params.join('&') : '');
+
+    return {
+        statusCode: 301,
+        statusDescription: 'Moved Permanently',
+        headers: {
+            'location': { value: location },
+            // 恒久リダイレクトはブラウザに無期限キャッシュされうる。
+            // 撤回可能にするため TTL を 1 時間に制限する。
+            'cache-control': { value: 'max-age=3600' }
+        }
+    };
+}

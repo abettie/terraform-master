@@ -138,19 +138,47 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
    - `contact@master.makedara.work` にテスト送信 → Gmail に転送されること
    - Gmail から返信 → 元送信者に `contact@` 名義で届くことを確認
 
-### 重要: Abenotech 事業紹介サイト（makedara.work / master.makedara.work）について
+### 重要: Abenotech 事業紹介サイト（makedara.work、旧 master.makedara.work）について
 
-`https://makedara.work/` と `https://master.makedara.work/` の両方（同一 CloudFront
-distribution・同一コンテンツ）で事業紹介サイト（静的 3 ページ）を配信し、問い合わせ
-フォームは Cloudflare Turnstile で Bot を弾いたうえで SES メール通知します。配信は
+`https://makedara.work/`（apex）を正規 URL として事業紹介サイト（静的 3 ページ）を配信し、
+問い合わせフォームは Cloudflare Turnstile で Bot を弾いたうえで SES メール通知します。配信は
 CloudFront + S3（OAC）、問い合わせ API は API Gateway + Lambda 構成です。
 静的コンテンツ（`web/` 配下）は Terraform では管理せず、`scripts/deploy-pages.sh` で配置します。
 Turnstile ウィジェットの作成・シークレット投入・HTML への値埋め込みは手動で実施します。
 
+`https://master.makedara.work/` および CloudFront デフォルトドメイン
+（`*.cloudfront.net`）は同一 distribution 上に残っていますが、viewer-request の
+CloudFront Function（`aws_cloudfront_function.redirect_to_apex`、コード本体は
+`cloudfront-functions/redirect-to-apex.js.tftpl`）が apex 以外の Host を検知し
+`https://makedara.work` へ 301 リダイレクトします（パス・クエリ文字列は維持）。
+`master.makedara.work` の ACM SAN・Route53 ALIAS レコードは TLS ハンドシェイクに必要なため
+削除せず残しています。各ページの `<head>` にも自己参照 `rel="canonical"` を入れて正規化しています。
+
 クローラー向けに `web/robots.txt` と `web/sitemap.xml` も同じく `web/` 配下で管理します。
-サイトは 2 ホスト名で配信しますが、Google Search Console に登録済みの apex
-（`https://makedara.work/`）を正規 URL として記載しています。ページを追加・削除した場合は
-`web/sitemap.xml` の `<url>` と `<lastmod>` を更新してください。
+Google Search Console に登録済みの apex（`https://makedara.work/`）を正規 URL として
+記載しています。ページを追加・削除した場合は `web/sitemap.xml` の `<url>` と `<lastmod>`
+を更新してください。
+
+#### CloudFront Function の apply 前セルフテスト
+
+**viewer-request 関数が実行時エラーを起こすと CloudFront は 5xx を返し全ページが
+閲覧不能になるため、`terraform apply` 前に必ず `test-function` で単体テストすること。**
+
+```bash
+export AWS_PROFILE=master
+ETAG=$(aws cloudfront describe-function --name pages-redirect-to-apex \
+  --query 'ETag' --output text)
+aws cloudfront test-function --name pages-redirect-to-apex \
+  --if-match "$ETAG" --stage LIVE --event-object fileb://event.json
+```
+
+`event.json` に以下 3 パターンを用意して確認する。
+
+| ケース | `headers.host.value` | 期待結果 |
+| --- | --- | --- |
+| apex | `makedara.work` | `request` がそのまま返る（`statusCode` なし） |
+| master + クエリ | `master.makedara.work`（`uri: /contact.html`, `querystring` に utm 2 件） | 301 / `Location: https://makedara.work/contact.html?utm_source=...&utm_medium=...` |
+| CloudFront ドメイン | `dxxxxxxxx.cloudfront.net` | 301 / `Location: https://makedara.work/` |
 
 #### 実行手順
 
@@ -194,10 +222,12 @@ Turnstile ウィジェットの作成・シークレット投入・HTML への�
    - `web/` を配信バケットへ同期し、CloudFront キャッシュを無効化します
 
 6. **疎通確認**
-   - `https://master.makedara.work/` と `https://makedara.work/` の両方が HTTPS で表示され、
-     3 ページを相互遷移できること
-   - 両ホスト名の問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work`
+   - `https://makedara.work/` が HTTPS で表示され、3 ページを相互遷移できること
+   - `https://master.makedara.work/` へアクセスすると `https://makedara.work/` へ 301
+     リダイレクトされること（`curl -sI https://master.makedara.work/ | grep -iE '^(HTTP|location)'`）
+   - apex 上の問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work`
      に通知が届き、既存の転送で運営 Gmail に届くこと。その返信が送信者に届くこと（Reply-To）
+   - ページソースに `rel="canonical"` が出ていること
 
 > 補足: 問い合わせ通知の宛先は検証済みの `contact@master.makedara.work` のため、
 > SES サンドボックスのままでも通知メールは送信されます（既存の受信転送に相乗り）。
