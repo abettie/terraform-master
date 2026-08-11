@@ -147,6 +147,11 @@ CloudFront + S3（OAC）、問い合わせ API は API Gateway + Lambda 構成�
 静的コンテンツ（`web/` 配下）は Terraform では管理せず、`scripts/deploy-pages.sh` で配置します。
 Turnstile ウィジェットの作成・シークレット投入・HTML への値埋め込みは手動で実施します。
 
+クローラー向けに `web/robots.txt` と `web/sitemap.xml` も同じく `web/` 配下で管理します。
+サイトは 2 ホスト名で配信しますが、Google Search Console に登録済みの apex
+（`https://makedara.work/`）を正規 URL として記載しています。ページを追加・削除した場合は
+`web/sitemap.xml` の `<url>` と `<lastmod>` を更新してください。
+
 #### 実行手順
 
 1. **Cloudflare Turnstile ウィジェットを作成**
