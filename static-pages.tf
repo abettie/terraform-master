@@ -89,6 +89,19 @@ resource "aws_acm_certificate_validation" "pages" {
   validation_record_fqdns = [for r in aws_route53_record.pages_cert_validation : r.fqdn]
 }
 
+# --- CloudFront Function（非正規ホスト名を apex へ 301）----------------------
+
+resource "aws_cloudfront_function" "redirect_to_apex" {
+  name    = "pages-redirect-to-apex"
+  runtime = "cloudfront-js-2.0"
+  comment = "Redirect non-apex hosts to https://${local.apex_domain} (301)"
+  publish = true
+
+  code = templatefile("${path.module}/cloudfront-functions/redirect-to-apex.js.tftpl", {
+    apex_domain = local.apex_domain
+  })
+}
+
 # --- CloudFront（OAC 経由で S3 を配信）-------------------------------------
 
 resource "aws_cloudfront_origin_access_control" "pages" {
@@ -121,6 +134,11 @@ resource "aws_cloudfront_distribution" "pages" {
 
     # AWS マネージドキャッシュポリシー「CachingOptimized」。
     cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.redirect_to_apex.arn
+    }
   }
 
   # 直リンク（存在しないパス）でも Home を返す簡易フォールバック。
