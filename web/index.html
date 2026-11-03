@@ -37,19 +37,30 @@
 
   <section style="max-width:1120px; margin:0 auto; padding:clamp(48px,8vw,88px) clamp(20px,5vw,40px) clamp(48px,7vw,76px); display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:clamp(32px,5vw,48px); align-items:center;">
     <div>
-      <h1 style="font-size:clamp(32px,6.2vw,54px); line-height:1.2; font-weight:700; letter-spacing:-.02em; color:#0B0E16; margin:0 0 24px;">モバイルとクラウドで、<br>アイデアを、動かす。</h1>
+      <h1 style="font-size:clamp(28px,4.6vw,50px); line-height:1.3; font-weight:700; letter-spacing:-.02em; color:#0B0E16; margin:0 0 24px; word-break:keep-all; overflow-wrap:anywhere;"><span style="display:inline-block;">モバイルと</span><span style="display:inline-block;">クラウドで、</span><br><span style="display:inline-block;">アイデアを、</span><span style="display:inline-block;">動かす。</span></h1>
       <p style="font-size:17px; line-height:1.9; color:#4B5262; max-width:520px; margin:0 0 36px;">アベノテックは、スマートフォンアプリの企画・開発から、AWSインフラの構築、Web開発までを一貫して支援する個人事業です。</p>
       <div style="display:flex; gap:14px; flex-wrap:wrap;">
         <a href="contact.html" style="display:inline-flex; align-items:center; gap:8px; background:#1D4ED8; color:#fff; padding:15px 28px; border-radius:10px; font-size:15px; font-weight:600;">お問い合わせ →</a>
         <a href="#services" style="display:inline-flex; align-items:center; padding:15px 24px; border-radius:10px; border:1px solid #D3D7DF; color:#0F1320; font-size:15px; font-weight:500;">事業内容を見る</a>
       </div>
     </div>
-    <div style="position:relative; height:clamp(280px,42vw,400px); min-height:280px; border-radius:16px; overflow:hidden; border:1px solid #E5E7EB; background:repeating-linear-gradient(135deg,#EEF1F6 0 14px,#E6EAF1 14px 28px);">
-      <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center;">
-        <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#9AA0AC; background:#F6F7F9; padding:6px 12px; border-radius:6px;">product / UI shot</span>
+    <a href="#works" style="position:relative; display:block; height:clamp(340px,42vw,420px); min-height:340px; border-radius:16px; overflow:hidden; border:1px solid #E5E7EB; background:linear-gradient(160deg,#C9ECF5 0%,#A8DFEE 55%,#99D9EA 100%); color:inherit;">
+      <!-- phone -->
+      <div style="position:absolute; left:50%; top:34px; transform:translateX(-50%); width:220px; height:440px; border-radius:34px; background:#0F1320; padding:9px; box-shadow:0 24px 48px rgba(20,80,110,.25);">
+        <div style="width:100%; height:100%; border-radius:26px; background:#FAF5EB; overflow:hidden;">
+          <img src="images/03-everyones-post.png" alt="うちの子語録「みんなの投稿」画面" style="width:100%; height:100%; object-fit:cover; object-position:bottom; display:block;">
+        </div>
       </div>
-      <div style="position:absolute; top:24px; right:24px; width:12px; height:12px; border-radius:50%; background:#1D4ED8; animation:pulseDot 2s ease-in-out infinite;"></div>
-    </div>
+      <!-- app icon -->
+      <div style="position:absolute; left:clamp(16px,4vw,32px); bottom:clamp(20px,4vw,32px); display:flex; align-items:center; gap:12px; background:rgba(255,255,255,.88); backdrop-filter:blur(8px); padding:10px 16px 10px 10px; border-radius:16px; box-shadow:0 8px 24px rgba(20,80,110,.16);">
+        <img src="images/icon.png" alt="うちの子語録 アプリアイコン" style="width:52px; height:52px; border-radius:13px; display:block;">
+        <div>
+          <div style="font-size:14px; font-weight:700; color:#0B0E16;">うちの子語録</div>
+          <div style="font-size:11px; color:#6B7280; margin-top:2px;">iOS / Android で公開中</div>
+        </div>
+      </div>
+      <div style="position:absolute; top:24px; right:24px; width:12px; height:12px; border-radius:50%; background:#F5913A; animation:pulseDot 2s ease-in-out infinite;"></div>
+    </a>
   </section>
 
   <section id="services" style="background:#fff; border-top:1px solid #E9EBEF; border-bottom:1px solid #E9EBEF;">
@@ -83,14 +94,56 @@
     </div>
   </section>
 
-  <section id="works" style="max-width:1120px; margin:0 auto; padding:clamp(56px,8vw,84px) clamp(20px,5vw,40px); text-align:center;">
-    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.18em; color:#1D4ED8; margin-bottom:14px;">WORKS</div>
-    <h2 style="font-size:32px; font-weight:700; color:#0B0E16; margin:0 0 24px;">実績</h2>
-    <div style="display:inline-flex; align-items:center; gap:12px; padding:18px 34px; border:1px dashed #C4C9D2; border-radius:12px; background:#fff;">
-      <span style="width:8px; height:8px; border-radius:50%; background:#1D4ED8; animation:pulseDot 1.5s infinite;"></span>
-      <span style="font-size:18px; font-weight:600; color:#0B0E16;">Coming soon</span>
+  <section id="works" style="max-width:1120px; margin:0 auto; padding:clamp(56px,8vw,84px) clamp(20px,5vw,40px);">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:.18em; color:#1D4ED8; margin-bottom:12px;">WORKS</div>
+    <h2 style="font-size:34px; font-weight:700; color:#0B0E16; margin:0 0 40px;">実績</h2>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); border:1px solid #E5E7EB; border-radius:18px; overflow:hidden; background:#fff;">
+      <div style="background:linear-gradient(160deg,#C9ECF5 0%,#A8DFEE 60%,#99D9EA 100%); display:flex; align-items:center; justify-content:center; padding:clamp(36px,6vw,56px);">
+        <img src="images/icon.png" alt="うちの子語録 アプリアイコン" style="width:clamp(128px,17vw,160px); height:clamp(128px,17vw,160px); border-radius:22%; display:block; box-shadow:0 18px 40px rgba(20,80,110,.25), 0 0 0 1px rgba(255,255,255,.6);">
+      </div>
+      <div style="padding:clamp(28px,4vw,44px);">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; color:#9AA0AC;">MOBILE APP ・ 2026</span>
+          <span style="display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; color:#047857; background:#ECFDF5; padding:4px 10px; border-radius:999px;"><span style="width:6px; height:6px; border-radius:50%; background:#10B981;"></span>iOS / Android 公開中</span>
+        </div>
+        <h3 style="font-size:26px; font-weight:700; color:#0B0E16; margin:0 0 14px;">うちの子語録</h3>
+        <p style="font-size:15px; line-height:1.9; color:#4B5262; margin:0 0 22px;">子どもの言い間違いや可愛い言葉を記録して、家族やほかのユーザーと共有できるアプリ。企画・デザインからアプリ実装、AWSのバックエンド構築、ストア申請・リリースまでを一人で手掛けました。</p>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#3B4252; background:#F3F4F6; padding:5px 10px; border-radius:6px;">React Native / Expo</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#3B4252; background:#F3F4F6; padding:5px 10px; border-radius:6px;">TypeScript</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#3B4252; background:#F3F4F6; padding:5px 10px; border-radius:6px;">AWS Lambda</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#3B4252; background:#F3F4F6; padding:5px 10px; border-radius:6px;">DynamoDB</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#3B4252; background:#F3F4F6; padding:5px 10px; border-radius:6px;">S3</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#3B4252; background:#F3F4F6; padding:5px 10px; border-radius:6px;">Firebase Auth</span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#3B4252; background:#F3F4F6; padding:5px 10px; border-radius:6px;">Terraform</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:18px;">
+          <a href="https://apps.apple.com/jp/app/%E3%81%86%E3%81%A1%E3%81%AE%E5%AD%90%E8%AA%9E%E9%8C%B2/id6806550328" target="_blank" rel="noopener" style="display:block; line-height:0;"><img src="images/appstore_jp.svg" alt="App Store からダウンロード" style="height:44px; width:auto; display:block;"></a>
+          <a href="https://play.google.com/store/apps/details?id=work.makedara.kidsword" target="_blank" rel="noopener" style="display:block; line-height:0;"><img src="images/googleplay_jp.svg" alt="Google Play で手に入れよう" style="height:44px; width:auto; display:block;"></a>
+        </div>
+        <a href="https://kidsword.makedara.work" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#1D4ED8;">アプリサイトを見る →</a>
+      </div>
     </div>
-    <p style="font-size:14px; color:#6B7280; margin:20px 0 0;">実績は現在準備中です。近日公開予定。</p>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:clamp(20px,3vw,32px); margin-top:clamp(28px,4vw,40px); padding:clamp(28px,4vw,44px); border-radius:18px; background:#FAF5EB; border:1px solid #EFE6D6;">
+      <figure style="margin:0; text-align:center;">
+        <div style="max-width:220px; margin:0 auto; border-radius:28px; background:#0F1320; padding:7px; box-shadow:0 14px 32px rgba(90,60,30,.16);">
+          <img src="images/02-my-post.png" alt="子どもごとの投稿一覧画面" loading="lazy" style="width:100%; aspect-ratio:600/1273; object-fit:cover; object-position:bottom; border-radius:22px; display:block;">
+        </div>
+        <figcaption style="font-size:13px; color:#4B5262; margin-top:14px; line-height:1.7;"><strong style="color:#0B0E16;">子どもごとの記録</strong><br>エピソードや写真と一緒に残せる</figcaption>
+      </figure>
+      <figure style="margin:0; text-align:center;">
+        <div style="max-width:220px; margin:0 auto; border-radius:28px; background:#0F1320; padding:7px; box-shadow:0 14px 32px rgba(90,60,30,.16);">
+          <img src="images/01-posts.png" alt="新しい投稿の作成画面" loading="lazy" style="width:100%; aspect-ratio:600/1273; object-fit:cover; object-position:bottom; border-radius:22px; display:block;">
+        </div>
+        <figcaption style="font-size:13px; color:#4B5262; margin-top:14px; line-height:1.7;"><strong style="color:#0B0E16;">かんたん投稿</strong><br>言い間違いと正しい言葉を入れるだけ</figcaption>
+      </figure>
+      <figure style="margin:0; text-align:center;">
+        <div style="max-width:220px; margin:0 auto; border-radius:28px; background:#0F1320; padding:7px; box-shadow:0 14px 32px rgba(90,60,30,.16);">
+          <img src="images/04-child.png" alt="マイページ画面" loading="lazy" style="width:100%; aspect-ratio:600/1273; object-fit:cover; object-position:bottom; border-radius:22px; display:block;">
+        </div>
+        <figcaption style="font-size:13px; color:#4B5262; margin-top:14px; line-height:1.7;"><strong style="color:#0B0E16;">きょうだいにも対応</strong><br>お子さまごとに名前とアイコンを設定</figcaption>
+      </figure>
+    </div>
   </section>
 
   <section style="max-width:1120px; margin:0 auto; padding:0 clamp(20px,5vw,40px) clamp(56px,8vw,84px);">
@@ -111,6 +164,9 @@
         <a href="contact.html" style="color:#6B7280;">お問い合わせ</a>
         <span>© 2026 Abenotech</span>
       </div>
+    </div>
+    <div style="max-width:1120px; margin:0 auto; padding:0 clamp(20px,5vw,40px) 28px; font-size:11px; line-height:1.8; color:#9AA0AC;">
+      Apple、Apple ロゴ、App Store は、米国その他の国で登録された Apple Inc. の商標です。Google Play および Google Play ロゴは Google LLC の商標です。
     </div>
   </footer>
 
