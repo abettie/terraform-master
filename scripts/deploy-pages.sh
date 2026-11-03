@@ -5,7 +5,8 @@
 # 前提:
 #   - terraform apply 済み（バケット・CloudFront が存在する）
 #   - AWS 認証済み（例: AWS_PROFILE=master / aws sso login --profile master）
-#   - web/contact.html の __API_BASE__ / __TURNSTILE_SITE_KEY__ を実値へ置換済み
+#   - terraform init 済みで、terraform output を実行できる
+#   - web/contact.html の Turnstile Site Key / API エンドポイントが現在の値と一致している
 #
 # 使い方:
 #   AWS_PROFILE=master ./scripts/deploy-pages.sh
@@ -29,4 +30,4 @@ aws cloudfront create-invalidation \
   --query 'Invalidation.{Id:Id,Status:Status}' \
   --output table
 
-echo "==> Done. https://master.makedara.work/"
+echo "==> Done. https://makedara.work/"

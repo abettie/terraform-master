@@ -32,6 +32,6 @@ output "pages_cloudfront_distribution_id" {
 }
 
 output "contact_api_endpoint" {
-  description = "問い合わせ API のエンドポイント（web/contact.html の __API_BASE__ に設定）"
+  description = "問い合わせ API のエンドポイント（web/contact.html の API_BASE に設定）"
   value       = aws_apigatewayv2_api.contact.api_endpoint
 }

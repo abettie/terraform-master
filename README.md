@@ -97,12 +97,12 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
 #### 実行手順
 
 1. **Route53 ホストゾーンを手動作成**
-   - マスターアカウントのコンソールで `makedara.work`（apex）と `master.makedara.work` の
+   - マスターアカウントのコンソールで `makedara.work`（apex ドメイン）と `master.makedara.work` の
      public hosted zone をそれぞれ作成
    - 払い出された Zone ID を `terraform.tfvars` の `makedara_zone_id` /
      `master_makedara_zone_id` に設定
 
-2. **レジストラから apex へ NS 委任**
+2. **レジストラから apex ドメインへ NS 委任**
    - お名前ドットコムのネームサーバー設定を、`makedara.work` ゾーンの NS 4 本に変更する
    - `master.makedara.work` への委任は Terraform が `makedara.work` ゾーン内に NS レコード
      （`aws_route53_record.master_delegation`）として作成するため、レジストラ側の設定は不要
@@ -140,103 +140,44 @@ NS 委任・SES サンドボックス解除・Gmail 設定は Terraform 管理�
 
 ### 重要: Abenotech 事業紹介サイト（makedara.work、旧 master.makedara.work）について
 
-`https://makedara.work/`（apex）を正規 URL として事業紹介サイト（静的 3 ページ）を配信し、
-問い合わせフォームは Cloudflare Turnstile で Bot を弾いたうえで SES メール通知します。配信は
-CloudFront + S3（OAC）、問い合わせ API は API Gateway + Lambda 構成です。
-静的コンテンツ（`web/` 配下）は Terraform では管理せず、`scripts/deploy-pages.sh` で配置します。
-Turnstile ウィジェットの作成・シークレット投入・HTML への値埋め込みは手動で実施します。
+`https://makedara.work/`（apex ドメイン）を正規 URL とする事業紹介サイト（静的 3 ページ）です。
 
-`https://master.makedara.work/` および CloudFront デフォルトドメイン
-（`*.cloudfront.net`）は同一 distribution 上に残っていますが、viewer-request の
-CloudFront Function（`aws_cloudfront_function.redirect_to_apex`、コード本体は
-`cloudfront-functions/redirect-to-apex.js.tftpl`）が apex 以外の Host を検知し
-`https://makedara.work` へ 301 リダイレクトします（パス・クエリ文字列は維持）。
-`master.makedara.work` の ACM SAN・Route53 ALIAS レコードは TLS ハンドシェイクに必要なため
-削除せず残しています。各ページの `<head>` にも自己参照 `rel="canonical"` を入れて正規化しています。
+- **配信**: CloudFront + S3（OAC）
+- **問い合わせフォーム**: API Gateway + Lambda。Cloudflare Turnstile で Bot を弾き、SES でメール通知します
+- **静的コンテンツ**: `web/` 配下。Terraform では管理せず、`scripts/deploy-pages.sh` で配置します
 
-クローラー向けに `web/robots.txt` と `web/sitemap.xml` も同じく `web/` 配下で管理します。
-Google Search Console に登録済みの apex（`https://makedara.work/`）を正規 URL として
-記載しています。ページを追加・削除した場合は `web/sitemap.xml` の `<url>` と `<lastmod>`
-を更新してください。
+#### リダイレクト
 
-#### CloudFront Function の apply 前セルフテスト
+apex ドメイン以外へのアクセスは、`https://makedara.work` へ 301 リダイレクトします（パス・クエリ文字列は維持）。
 
-**viewer-request 関数が実行時エラーを起こすと CloudFront は 5xx を返し全ページが
-閲覧不能になるため、`terraform apply` 前に必ず `test-function` で単体テストすること。**
+- **対象**: `master.makedara.work`、CloudFront デフォルトドメイン（`*.cloudfront.net`）
+- **実装**: viewer-request の CloudFront Function（`aws_cloudfront_function.redirect_to_apex`、コード本体は `cloudfront-functions/redirect-to-apex.js.tftpl`）
+- **削除してはいけないもの**: `master.makedara.work` の ACM SAN・Route53 ALIAS レコード（TLS ハンドシェイクに必要）
 
-```bash
-export AWS_PROFILE=master
-ETAG=$(aws cloudfront describe-function --name pages-redirect-to-apex \
-  --query 'ETag' --output text)
-aws cloudfront test-function --name pages-redirect-to-apex \
-  --if-match "$ETAG" --stage LIVE --event-object fileb://event.json
-```
+各ページの `<head>` にも、自己参照の `rel="canonical"` を入れています。
 
-`event.json` に以下 3 パターンを用意して確認する。
+#### クローラー向けファイル
 
-| ケース | `headers.host.value` | 期待結果 |
-| --- | --- | --- |
-| apex | `makedara.work` | `request` がそのまま返る（`statusCode` なし） |
-| master + クエリ | `master.makedara.work`（`uri: /contact.html`, `querystring` に utm 2 件） | 301 / `Location: https://makedara.work/contact.html?utm_source=...&utm_medium=...` |
-| CloudFront ドメイン | `dxxxxxxxx.cloudfront.net` | 301 / `Location: https://makedara.work/` |
+`web/robots.txt` と `web/sitemap.xml` を管理しています。どちらも Google Search Console に登録済みの `https://makedara.work/` を正規 URL として記載しています。
 
-#### 実行手順
+ページを追加・削除した場合は、`web/sitemap.xml` の `<url>` と `<lastmod>` を更新してください。
 
-1. **Cloudflare Turnstile ウィジェットを作成**
-   - Cloudflare ダッシュボード → Turnstile で `master.makedara.work` 用ウィジェットを追加
-   - 払い出された **Site Key**（公開値）と **Secret Key**（機密値）を控える
-   - 既存ウィジェット（旧 `pages.master.makedara.work`）を流用する場合は、許可ホスト名に
-     `master.makedara.work` を追加する。Site Key を変えないなら手順3・4 の差し替えは不要
-   - サイトは 2 ホスト名で配信するため、許可ホスト名に **`makedara.work` も必ず追加**する
-     （未追加だと apex 経由のフォーム送信で Turnstile が失敗する）
+#### デプロイ手順
 
-2. **terraform apply（ユーザーが実行）**
+1. **静的コンテンツをデプロイ**
    ```bash
    aws sso login --profile master
-   export AWS_PROFILE=master && terraform apply
-   ```
-   - 配信用 S3・CloudFront・ACM 証明書（us-east-1・DNS 検証は Route53 で自動）・
-     問い合わせ API（API Gateway + Lambda）・Turnstile シークレット用 SSM パラメータが作成されます
-   - ACM は DNS 検証完了まで apply が待機します（数分）
-
-3. **Turnstile シークレットを SSM に投入**
-   ```bash
-   export AWS_PROFILE=master
-   aws ssm put-parameter \
-     --name /master/turnstile/secret-key \
-     --type SecureString --overwrite \
-     --value '<Cloudflare の Secret Key>'
-   ```
-
-4. **HTML にサイト固有値を埋め込む**
-   - `web/contact.html` の `__TURNSTILE_SITE_KEY__` を手順1の Site Key に置換
-   - `web/contact.html` の `__API_BASE__` を API エンドポイントに置換:
-     ```bash
-     terraform output -raw contact_api_endpoint
-     ```
-
-5. **静的コンテンツをデプロイ**
-   ```bash
    export AWS_PROFILE=master && ./scripts/deploy-pages.sh
    ```
    - `web/` を配信バケットへ同期し、CloudFront キャッシュを無効化します
 
-6. **疎通確認**
+2. **疎通確認**
    - `https://makedara.work/` が HTTPS で表示され、3 ページを相互遷移できること
    - `https://master.makedara.work/` へアクセスすると `https://makedara.work/` へ 301
      リダイレクトされること（`curl -sI https://master.makedara.work/ | grep -iE '^(HTTP|location)'`）
-   - apex 上の問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work`
+   - apex ドメイン上の問い合わせフォームで Turnstile を通過し送信 → `contact@master.makedara.work`
      に通知が届き、既存の転送で運営 Gmail に届くこと。その返信が送信者に届くこと（Reply-To）
    - ページソースに `rel="canonical"` が出ていること
 
 > 補足: 問い合わせ通知の宛先は検証済みの `contact@master.makedara.work` のため、
 > SES サンドボックスのままでも通知メールは送信されます（既存の受信転送に相乗り）。
-
-### Terraform初期化
-
-作業ディレクトリでTerraformを初期化します。環境変数 `AWS_PROFILE` でプロファイル名を指定してください。
-
-```bash
-aws sso login --profile master
-export AWS_PROFILE=master && terraform init
-```
